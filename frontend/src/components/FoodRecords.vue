@@ -1,63 +1,64 @@
 <template>
-    <div class="container-fluid mt-4">
-        <h1 class="h1">Food Records</h1>
-        <table class="table">
-            <thead>
+    <div class="container-fluid food-records mt-4">
+        <router-link :to="{name: 'upsert', params: {id: food}}}">
+            <button class="btn btn-primary mt-4 add-btn">Add Food item</button>
+        </router-link>
+        <table class="table mt-3">
+            <thead class="table-dark">
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
                     <th>Value</th>
                     <th>Date Time</th>
-                    <th>&nbsp;</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <!-- <td>{{ record.id }}</td>
+                <tr v-for="record in foodRecords" :key="record.id">
+                    <td>{{ record.id }}</td>
                     <td>{{ record.name }}</td>
                     <td>{{ record.value }}</td>
-                    <td>{{ record.dateTime }}</td> -->
-                    <!-- <td class="text-right">
-                        <a href="#" @click.prevent="updateFoodRecord(record)">Edit</a> -
-                        <a href="#" @click.prevent="deleteFoodRecord(record.id)">Delete</a>
-                    </td> -->
+                    <td>{{ record.dateTime }}</td>
+                    <td>
+                        <router-link to="/upsert-food">
+                            <button class="btn btn-secondary update-btn">Update</button>
+                        </router-link>
+
+                        <router-link to="/upsert-food">
+                            <button class="btn btn-danger delete-btn">Delete</button>
+                        </router-link>
+                    </td>
                 </tr>
             </tbody>
         </table>
 
-        <form>
-            <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Email address</label>
-                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-            </div>
-            <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label">Name</label>
-                <input type="password" class="form-control" id="exampleInputPassword1">
-            </div>
-            <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                <label class="form-check-label" for="exampleCheck1">Value</label>
-            </div>
-            <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label">Date Time</label>
-                <input type="datetime-local" class="form-control" id="exampleInputPassword1">
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-
     </div>
-    
 </template>
 
 <script>
+    export default {
+        props: ['foodRecords'],
+        setup(props) {
+            console.log("FOOD RECORDS IN FOOD RECORDS: ", props.foodRecords)
+        }
+    }
 
 </script>
 
 <style scoped>
-    form {
-        width: 550px;
-        margin: 0 auto;
-        background-color: aliceblue;
-    }
+
+.food-records {
+    max-width: 1000px;
+}
+.container-fluid .add-btn {
+    float: left;
+    padding: 12px;
+    font-weight: 600;
+    margin: 1rem 1rem 1rem 0;
+}
+
+
+.container-fluid .update-btn {
+
+}
 </style>

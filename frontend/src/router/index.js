@@ -1,12 +1,19 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import UpsertFood from '../components/UpsertFood.vue'
 
 const routes = [
-  // {
-  //   path: '/',
-  //   name: 'home',
-  //   component: HomeView
-  // }
+  {
+    path: '/',
+    name: 'home',
+    component: HomeView
+  },
+  {
+    path: '/upsert-food/:id',
+    name: 'upsert',
+    component: UpsertFood,
+    props: true
+  }
 ]
 
 const router = createRouter({

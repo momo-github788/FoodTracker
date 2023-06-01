@@ -1,19 +1,27 @@
 <template>
   <NavBar/>
-  Hey
-  <HomeView/>
+  <router-view></router-view>
+
+
 </template>
 
 <script>
 import NavBar from './components/NavBar.vue';
 import HomeView from './views/HomeView.vue';
 
-
 export default {
   components: {
     NavBar,
     HomeView
-}
+  },
+  setup() {
+
+
+
+    return {
+      
+    }
+  }
 }
 </script>
 

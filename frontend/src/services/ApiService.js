@@ -1,23 +1,27 @@
 import axios from 'axios'
-import vue from 'vue'
-i
+import vue from 'vue';
 
 const client = axios.create({
-    baseURL: 'http://localhost:5000/api/FoodRecords',
-    json: true
+    baseURL: 'https://localhost:7050/api/FoodRecords',
+    headers: { 'Content-Type': 'application/json' }
 })
 
+const BASE_URL = client.defaults.baseURL;
+
 export default {
-    getAll() {
-        console.log(client.baseURL)
+    async create(foodRecord) {
+        return await axios.post(BASE_URL, foodRecord)
     },
-      create(data) {
-        return this.execute('post', '/', data)
+    async getAll() {
+        return await axios.get(BASE_URL);
     },
-    update(id, data) {
-        return this.execute('put', `/${id}`, data)
+    async getById(id) {
+        return await axios.get(BASE_URL + `/${id}`)
     },
-    delete(id) {
-        return this.execute('delete', `/${id}`)
+    async update(foodRecord, id) {
+        return await axios.put(BASE_URL + `/${id}`, foodRecord)
+    },
+    async delete(id) {
+        return await axios.delete(BASE_URL + `/${id}`)
     } 
 }

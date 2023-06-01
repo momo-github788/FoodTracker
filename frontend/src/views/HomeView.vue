@@ -1,9 +1,25 @@
 <template>
-  <div class="home mt-5">
+  <div class="home mt-4">
     <h1>{{ title }}</h1>
-    <h3>Take care of your daily calories intake</h3>
+    <h4>Take care of your daily calories intake</h4>
 
-    <FoodRecords/>
+    <router-view></router-view>
+    <FoodRecords :foodRecords="foodRecords"/>
+
+    <div v-if="error">
+      {{error}}
+    </div>
+
+    <div v-if="foodRecords.length">
+      <diV v-for="record in foodRecords" :key="record.id">
+        <p>{{ record.name }}</p>
+      </div>
+    </div>
+
+    <div v-else>
+      Loading...
+    </div>
+
   </div>
 </template>
 
@@ -12,17 +28,26 @@
 
 import { ref } from 'vue';
 import FoodRecords from '../components/FoodRecords.vue'
+import UpsertFood from '@/components/UpsertFood.vue';
+import getFoodRecords from '../composables/getFoodRecords.js'
+
 
 export default {
 
   components: {
-    FoodRecords 
-  },
+    FoodRecords,
+    UpsertFood
+},
   setup() {
     const title = ref("Food Tracker Application")
 
+    const {foodRecords, error, load} = getFoodRecords()
+
+
+    load()
+
     return {
-      title
+      title, foodRecords, error
     }
   }
 }
