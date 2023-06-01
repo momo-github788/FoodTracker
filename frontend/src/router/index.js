@@ -14,6 +14,7 @@ const routes = [
     component: UpsertFood,
     props: true
   }
+  
 ]
 
 const router = createRouter({

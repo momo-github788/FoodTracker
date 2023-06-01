@@ -6,19 +6,6 @@
     <router-view></router-view>
     <FoodRecords :foodRecords="foodRecords"/>
 
-    <div v-if="error">
-      {{error}}
-    </div>
-
-    <div v-if="foodRecords.length">
-      <diV v-for="record in foodRecords" :key="record.id">
-        <p>{{ record.name }}</p>
-      </div>
-    </div>
-
-    <div v-else>
-      Loading...
-    </div>
 
   </div>
 </template>

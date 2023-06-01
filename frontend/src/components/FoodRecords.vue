@@ -1,6 +1,6 @@
 <template>
     <div class="container-fluid food-records mt-4">
-        <router-link :to="{name: 'upsert', params: {id: food}}}">
+        <router-link :to="{name: 'upsert', params: {id: 1}}">
             <button class="btn btn-primary mt-4 add-btn">Add Food item</button>
         </router-link>
         <table class="table mt-3">
@@ -20,7 +20,9 @@
                     <td>{{ record.value }}</td>
                     <td>{{ record.dateTime }}</td>
                     <td>
-                        <router-link to="/upsert-food">
+
+                        
+                        <router-link :to="{name: 'upsert', params: {id: record.id}}">
                             <button class="btn btn-secondary update-btn">Update</button>
                         </router-link>
 
@@ -36,10 +38,13 @@
 </template>
 
 <script>
+import { onMounted } from 'vue';
+
     export default {
         props: ['foodRecords'],
         setup(props) {
-            console.log("FOOD RECORDS IN FOOD RECORDS: ", props.foodRecords)
+            
+   
         }
     }
 
