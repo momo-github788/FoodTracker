@@ -9,10 +9,15 @@ const routes = [
     component: HomeView
   },
   {
-    path: '/upsert-food/:id',
-    name: 'upsert',
+    path: '/update/:id',
+    name: 'update',
     component: UpsertFood,
     props: true
+  },
+  {
+    path: '/add',
+    name: 'add',
+    component: UpsertFood
   }
   
 ]

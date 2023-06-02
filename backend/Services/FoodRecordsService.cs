@@ -1,4 +1,5 @@
 ﻿using backend.Data;
+using backend.DTOs.Request;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,12 +12,12 @@ namespace backend.Services {
             _context = context;
         }
 
-        public async Task<FoodRecord> Create(FoodRecord model) {
+        public async Task<FoodRecord> Create(CreateFoodRecordRequest request) {
             var foodRecord = new FoodRecord {
                 Id = Guid.NewGuid().ToString(),
-                Name = model.Name,
-                Value = model.Value,
-                DateTime = model.DateTime
+                Name = request.Name,
+                Value = request.Value,
+                DateTime =  DateTime.Now
             };
 
             _context.FoodRecords.Add(foodRecord);
@@ -56,17 +57,17 @@ namespace backend.Services {
 
         }
 
-        public async Task<FoodRecord> Update(FoodRecord model, string id) {
+        public async Task<FoodRecord> Update(FoodRecord request, string id) {
             var exists = await _context.FoodRecords.AnyAsync(f => f.Id == id);
             if (!exists) {
                 return null;
             }
 
-            _context.FoodRecords.Update(model);
+            _context.FoodRecords.Update(request);
 
             await _context.SaveChangesAsync();
 
-            return model;
+            return request;
         }
     }
 }

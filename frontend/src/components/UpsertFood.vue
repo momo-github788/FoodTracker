@@ -2,16 +2,17 @@
     <div class="add-food mt-4" v-if="foodRecord">
         <h1>Update a Food item</h1>
 
-        <form class="mt-5" @submit.prevent="handleUpdate">
+        <form class="mt-5" @submit.prevent="handleUpdateSubmit">
             <div class="mb-3 mt-3">
                 <label class="form-label">Name:</label>
-                <input type="text" class="form-control" placeholder="Enter name" :v-model="foodRecord.name" :value="foodRecord.name">
+                <input type="text" class="form-control" placeholder="Enter name" v-model="foodRecord.name">
             </div>
             <div class="mb-3">
                 <label class="form-label">Value:</label>
-                <input type="text" class="form-control" placeholder="Enter bvalue" :v-model="foodRecord.value" :value="foodRecord.value">
+                <input type="text" class="form-control" placeholder="Enter value" v-model="foodRecord.value">
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
+
 
             {{ foodRecord.name }}
             {{ foodRecord.value }}
@@ -21,42 +22,79 @@
     <div class="add-food mt-4" v-else>
         <h1>Add a Food item</h1>
 
-        <form class="mt-5">
+        <form class="mt-5" @submit.prevent="handleAddSubmit">
             <div class="mb-3 mt-3">
-                <label for="email" class="form-label">Email:</label>
-                <input type="email" class="form-control" id="email" placeholder="Enter email">
+                <label class="form-label">Name:</label>
+                <input type="text" class="form-control" placeholder="Enter name" v-model="name">
             </div>
             <div class="mb-3">
-                <label for="pwd" class="form-label">Password:</label>
-                <input type="text" class="form-control" id="pwd" placeholder="Enter password">
+                <label class="form-label">Value:</label>
+                <input type="text" class="form-control" placeholder="Enter value" v-model="value">
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">Add</button>
         </form>
+
+        {{name}}
+        {{value}}
     </div>
 </template>
 
 <script>
 import getFoodRecord from '@/composables/getFoodRecord';
+import { onMounted, ref } from 'vue';
+import ApiService from '@/services/ApiService';
 
 
 export default {
     props : ['id'],
     setup(props) {
     
-        const {foodRecord, error, load} = getFoodRecord(props.id)
+        if(props.id) {
+            const {foodRecord, error, load} = getFoodRecord(props.id)
 
-        load()
+            load()
 
 
-        const handleUpdate = () => {
-            console.log("updated: ", foodRecord.value)
+            const handleUpdateSubmit = () => {
+                ApiService.update(foodRecord.value, props.id)
+                    .then(res => {
+                        console.log(res)
+                    }).catch(err => {
+                        console.log(err.message)
+                    })
+            }
+
+            return {
+                foodRecord, error, handleUpdateSubmit
+            }
         }
 
-       
+
+console.log("adding")
+        let name = ref("")
+        let value = ref("")
+
+        const handleAddSubmit = () => {
+
+            const foodRecordObj = {
+                name: name.value,
+                value: value.value,
+                dateTime: '2023-06-02T09:19:44.597Z'
+            }
+
+            console.log(foodRecordObj)
+            ApiService.create(foodRecordObj)
+                .then(res => {
+                    console.log(res)
+                }).catch(err => {
+                    console.log(err.response)
+                })
+        }
 
         return {
-            foodRecord, error, handleUpdate
+            name, value, handleAddSubmit
         }
+
         
     }
 }

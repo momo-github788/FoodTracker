@@ -1,3 +1,4 @@
+using backend.DTOs.Request;
 using backend.Models;
 using backend.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -15,8 +16,8 @@ namespace backend.Controllers {
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(FoodRecord foodRecord) {
-            return Ok(await _foodRecordsService.Create(foodRecord));
+        public async Task<IActionResult> Create(CreateFoodRecordRequest request) {
+            return Ok(await _foodRecordsService.Create(request));
         }
 
         [HttpGet]
@@ -30,8 +31,8 @@ namespace backend.Controllers {
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(FoodRecord foodRecord, string id) {
-            return Ok(await _foodRecordsService.Update(foodRecord, id));
+        public async Task<IActionResult> Update(FoodRecord request, string id) {
+            return Ok(await _foodRecordsService.Update(request, id));
         }
 
         [HttpDelete("{id}")]

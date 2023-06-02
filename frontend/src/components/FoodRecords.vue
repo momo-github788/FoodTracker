@@ -1,6 +1,6 @@
 <template>
     <div class="container-fluid food-records mt-4">
-        <router-link :to="{name: 'upsert', params: {id: 1}}">
+        <router-link :to="{name: 'add'}">
             <button class="btn btn-primary mt-4 add-btn">Add Food item</button>
         </router-link>
         <table class="table mt-3">
@@ -22,13 +22,13 @@
                     <td>
 
                         
-                        <router-link :to="{name: 'upsert', params: {id: record.id}}">
+                        <router-link :to="{name: 'update', params: {id: record.id}}">
                             <button class="btn btn-secondary update-btn">Update</button>
                         </router-link>
 
-                        <router-link to="/upsert-food">
-                            <button class="btn btn-danger delete-btn">Delete</button>
-                        </router-link>
+                 
+                        <button class="btn btn-danger delete-btn" @click="deleteFoodRecord(record.id)">Delete</button>
+                       
                     </td>
                 </tr>
             </tbody>
@@ -39,11 +39,23 @@
 
 <script>
 import { onMounted } from 'vue';
+import ApiService from '@/services/ApiService';
 
     export default {
         props: ['foodRecords'],
         setup(props) {
-            
+            const deleteFoodRecord = (id) => {
+                ApiService.delete(id)
+                    .then(res => {
+                        console.log(res)
+                    }).catch(err => {
+                        console.log("err: ", err.message)
+                    })
+            }
+
+            return {
+                deleteFoodRecord
+            }
    
         }
     }
