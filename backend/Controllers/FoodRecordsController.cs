@@ -17,6 +17,11 @@ namespace backend.Controllers {
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateFoodRecordRequest request) {
+            if(!ModelState.IsValid) {
+                return BadRequest(new {
+                    message = "Please fill in all the fields"
+                });
+            }
             return Ok(await _foodRecordsService.Create(request));
         }
 

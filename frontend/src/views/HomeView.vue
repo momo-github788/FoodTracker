@@ -13,28 +13,26 @@
 <script>
 // @ is an alias to /src
 
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import FoodRecords from '../components/FoodRecords.vue'
-import UpsertFood from '@/components/UpsertFood.vue';
-import getFoodRecords from '../composables/getFoodRecords.js'
+import  useFoodRecords from '../composables/FoodRecord/foodRecord.js'
 
 
 export default {
-
   components: {
-    FoodRecords,
-    UpsertFood
-},
+    FoodRecords
+  },
   setup() {
     const title = ref("Food Tracker Application")
 
-    const {foodRecords, error, load} = getFoodRecords()
+    const {getFoodRecords, foodRecords} = useFoodRecords()
 
-
-    load()
+    onMounted(() => {
+      getFoodRecords()
+    })
 
     return {
-      title, foodRecords, error
+      title, foodRecords
     }
   }
 }

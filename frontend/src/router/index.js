@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import UpsertFood from '../components/UpsertFood.vue'
+import UpdateFood from '../components/UpdateFood.vue'
+import AddFood from '../components/AddFood.vue'
 
 const routes = [
   {
@@ -11,13 +12,13 @@ const routes = [
   {
     path: '/update/:id',
     name: 'update',
-    component: UpsertFood,
+    component: UpdateFood,
     props: true
   },
   {
     path: '/add',
     name: 'add',
-    component: UpsertFood
+    component: AddFood
   }
   
 ]

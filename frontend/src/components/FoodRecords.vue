@@ -1,8 +1,12 @@
 <template>
     <div class="container-fluid food-records mt-4">
+
+       
         <router-link :to="{name: 'add'}">
             <button class="btn btn-primary mt-4 add-btn">Add Food item</button>
         </router-link>
+
+         Length: {{length}}
         <table class="table mt-3">
             <thead class="table-dark">
                 <tr>
@@ -27,7 +31,7 @@
                         </router-link>
 
                  
-                        <button class="btn btn-danger delete-btn" @click="deleteFoodRecord(record.id)">Delete</button>
+                        <button class="btn btn-danger delete-btn" @click="handleDelete(record.id)">Delete</button>
                        
                     </td>
                 </tr>
@@ -38,23 +42,25 @@
 </template>
 
 <script>
-import { onMounted } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import ApiService from '@/services/ApiService';
+import useFoodRecords from '@/composables/FoodRecord/foodRecord';
 
     export default {
         props: ['foodRecords'],
-        setup(props) {
-            const deleteFoodRecord = (id) => {
-                ApiService.delete(id)
-                    .then(res => {
-                        console.log(res)
-                    }).catch(err => {
-                        console.log("err: ", err.message)
-                    })
+        setup() {
+            const { deleteFoodRecord, getFoodRecords, foodRecords} = useFoodRecords()
+            const length = ref(foodRecords.length)
+            const handleDelete = (id) => {
+                if (!window.confirm("You sure?")) {
+                    return;
+                }
+               deleteFoodRecord(id)
+               getFoodRecords()
             }
 
             return {
-                deleteFoodRecord
+                handleDelete, length, foodRecords
             }
    
         }
