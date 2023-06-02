@@ -29,7 +29,7 @@ namespace backend.Services {
 
         }
 
-        public async Task<bool> Delete(string id) {
+        public async Task<ICollection<FoodRecord>> Delete(string id) {
             var foodRecord = await _context.FoodRecords.FindAsync(id);
 
             if(foodRecord == null) {
@@ -38,7 +38,7 @@ namespace backend.Services {
             _context.FoodRecords.Remove(foodRecord);
 
             await _context.SaveChangesAsync();
-            return true;
+            return await _context.FoodRecords.ToListAsync();
 
         }
 

@@ -42,21 +42,30 @@
 </template>
 
 <script>
-import { onMounted, reactive, ref } from 'vue';
-import ApiService from '@/services/ApiService';
+
 import useFoodRecords from '@/composables/FoodRecord/foodRecord';
+import { onMounted, onUpdated, ref } from 'vue';
 
     export default {
         props: ['foodRecords'],
-        setup() {
-            const { deleteFoodRecord, getFoodRecords, foodRecords} = useFoodRecords()
-            const length = ref(foodRecords.length)
+        setup(props) {
+
+           const { deleteFoodRecord, getFoodRecords, foodRecords } = useFoodRecords()
+
+           getFoodRecords()
+
+            const length = ref(null);
+
+            onUpdated(() => {
+                length.value = foodRecords.value.length;
+            })
+
             const handleDelete = (id) => {
                 if (!window.confirm("You sure?")) {
                     return;
                 }
                deleteFoodRecord(id)
-               getFoodRecords()
+             
             }
 
             return {

@@ -11,6 +11,6 @@ namespace backend.Services {
         Task<FoodRecord> GetById(string id);
         Task<FoodRecord> Create(CreateFoodRecordRequest requests);
         Task<FoodRecord> Update(FoodRecord request, string id);
-        Task<bool> Delete(string id);
+        Task<ICollection<FoodRecord>> Delete(string id);
     }
 }

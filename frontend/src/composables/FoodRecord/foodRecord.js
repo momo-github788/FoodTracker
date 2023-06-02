@@ -17,7 +17,7 @@ export default function useFoodRecords() {
         errors.value = []
         ApiService.create(foodRecord)
             .then(res => {
-                console.log("RES: ", res)
+    
                 if(res.status !== 200) {
                     throw Error("Error adding")
                 }
@@ -81,7 +81,7 @@ export default function useFoodRecords() {
         ApiService.delete(id)
             .then(res => {
                 console.log(res)
-
+                foodRecords.value = res.data
             }).catch(err => {
                 console.log("err: ", err.message)
                 errors.value.push(err.message)
