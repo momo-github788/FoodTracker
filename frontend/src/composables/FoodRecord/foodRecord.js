@@ -48,15 +48,16 @@ export default function useFoodRecords() {
             })
     }
 
-    const getFoodRecords = () => {
+    const getFoodRecords = (params) => {
         errors.value = []
 
-        ApiService.getAll()
+        ApiService.getAll(params)
             .then(res => {
                 if(!res.status === 200) {
                     throw Error("No data available")
                 }
             foodRecords.value = res.data.data;
+            console.log(res.data)
 
             }).catch(err => {
                 errors.value.push(err.message)

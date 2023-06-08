@@ -11,12 +11,9 @@ export default {
     async create(foodRecord) {
         return await axios.post(BASE_URL, foodRecord)
     },
-    async getAll() {
-        return await axios.get(BASE_URL);
-    },
-    async searchFoodRecords(params) {
+    async getAll(params) {
         console.log("params: ", params)
-        return await axios.get(BASE_URL + `/searchQuery`, {params});
+        return await axios.get(BASE_URL, {params});
     },
     async getById(id) {
         return await axios.get(BASE_URL + `/${id}`)

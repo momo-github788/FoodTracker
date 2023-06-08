@@ -2624,19 +2624,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\luqmaan\\.nuget\\packages\\": {}
+    "C:\\Users\\user\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\luqmaan\\Documents\\Visual Studio\\FoodTracker\\backend\\backend.csproj",
+      "projectUniqueName": "C:\\Users\\user\\Documents\\Visual Studio 2022\\FoodTracker\\backend\\backend.csproj",
       "projectName": "backend",
-      "projectPath": "C:\\Users\\luqmaan\\Documents\\Visual Studio\\FoodTracker\\backend\\backend.csproj",
-      "packagesPath": "C:\\Users\\luqmaan\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\luqmaan\\Documents\\Visual Studio\\FoodTracker\\backend\\obj\\",
+      "projectPath": "C:\\Users\\user\\Documents\\Visual Studio 2022\\FoodTracker\\backend\\backend.csproj",
+      "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\user\\Documents\\Visual Studio 2022\\FoodTracker\\backend\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\luqmaan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [

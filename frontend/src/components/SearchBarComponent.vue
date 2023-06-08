@@ -13,18 +13,11 @@ export default {
     setup(props, {emit}) {
         const query = ref(null);
 
-
-        watch(query, () => {
-            if(query.value === "123") {
-                alert("hello")
-            }
-            sendChange()
-        })
-
+      
         const sendChange = () => {
             emit('onHandleChange', query.value);
         }
-
+        watch(query, sendChange)
         return {
             query, sendChange
         }
