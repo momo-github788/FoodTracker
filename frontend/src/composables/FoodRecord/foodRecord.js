@@ -30,6 +30,24 @@ export default function useFoodRecords() {
             })
     }
 
+    
+    const searchFoodRecords = (params) => {
+        errors.value = []
+
+        ApiService.searchFoodRecords(params)
+            .then(res => {
+                if(!res.status === 200) {
+                    throw Error("No data available")
+                }
+            foodRecords.value = res.data.data;
+            console.log("searched: " + foodRecords.value)
+
+            }).catch(err => {
+                errors.value.push(err.message)
+                console.log("Err: ", err.message)
+            })
+    }
+
     const getFoodRecords = () => {
         errors.value = []
 
@@ -38,7 +56,8 @@ export default function useFoodRecords() {
                 if(!res.status === 200) {
                     throw Error("No data available")
                 }
-            foodRecords.value = res.data;
+            foodRecords.value = res.data.data;
+
             }).catch(err => {
                 errors.value.push(err.message)
                 console.log("Err: ", err.message)
@@ -52,7 +71,8 @@ export default function useFoodRecords() {
                 if(!res.status === 200) {
                     throw Error("No data available")
                 }
-            foodRecord.value = res.data;
+            foodRecord.value = res.data.data;
+            console.log(res.data.data)
             }).catch(err => {
                 errors.value.push(err.message)
                 console.log("Err: ", err.message)
@@ -72,7 +92,7 @@ export default function useFoodRecords() {
                 })
             }).catch(err => {
                 errors.value.push(err.message)
-                console.log(err.message)
+                console.log(err)
             })
     }
 
@@ -81,7 +101,7 @@ export default function useFoodRecords() {
         ApiService.delete(id)
             .then(res => {
                 console.log(res)
-                foodRecords.value = res.data
+                foodRecords.value = res.data.data
             }).catch(err => {
                 console.log("err: ", err.message)
                 errors.value.push(err.message)
@@ -96,6 +116,7 @@ export default function useFoodRecords() {
         foodRecords, 
         getFoodRecords,
         getFoodRecord,
+        searchFoodRecords,
         updateFoodRecord,
         createFoodRecord,
         deleteFoodRecord

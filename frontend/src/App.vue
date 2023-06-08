@@ -27,11 +27,25 @@ export default {
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
+  font-family: "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
+  text-rendering: optimizelegibility;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+  -moz-text-size-adjust: none;
+  margin: 0;
+  padding: 0;
+  font-weight: 600;
+}
+
+p{
+  margin: 0;
+  padding: 0;
+}
+
+.home, .add-food-container, .update-food-container {
+  width: 60%;
+  margin: 3rem 0 0 5rem;
+
+
 }
 
 </style>

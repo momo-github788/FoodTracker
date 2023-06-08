@@ -1,18 +1,26 @@
+using backend.Data;
 using backend.DTOs.Request;
+using backend.DTOs.Response;
+using backend.Filter;
 using backend.Models;
 using backend.Services;
+using backend.Wrappers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace backend.Controllers {
+namespace backend.Controllers
+{
 
     [ApiController]
     [Route("api/[controller]")]
     public class FoodRecordsController : ControllerBase {
 
-        private readonly IFoodRecordsService _foodRecordsService;
+        private readonly FoodRecordsService _foodRecordsService;
+        private readonly ApplicationDbContext _context;
 
-        public FoodRecordsController(IFoodRecordsService foodRecordsService) {
+        public FoodRecordsController(FoodRecordsService foodRecordsService, ApplicationDbContext context) {
             _foodRecordsService = foodRecordsService;
+            _context = context; 
         }
 
         [HttpPost]
@@ -26,13 +34,29 @@ namespace backend.Controllers {
         }
 
         [HttpGet]
-        public async Task<ActionResult<ICollection<FoodRecord>>> GetAll() {
-            return Ok(await _foodRecordsService.GetAll());
-        }
+        public async Task<IActionResult> GetAll([FromQuery] PaginationAndFilterParams filter) {
 
+            PaginationAndFilterParams validFilter = new PaginationAndFilterParams(
+                filter.PageNumber, filter.PageSize, filter.FoodCategory, filter.Name, filter.SortDir, filter.SortBy
+            );
+
+
+            var foodRecords = await _foodRecordsService.GetAll(filter);
+            var totalRecords = foodRecords.Count();
+
+            return Ok(new PaginationResponse<ICollection<FoodRecord>>(foodRecords, validFilter.PageNumber, validFilter.PageSize, totalRecords));
+
+        }
+        
         [HttpGet("{id}")]
-        public async Task<ActionResult<ICollection<FoodRecord>>> GetById(string id) {
-            return Ok(await _foodRecordsService.GetById(id));
+        public async Task<ActionResult> GetById(string id)
+        {
+            return Ok(
+                new ApiResponse<FoodRecordResponse>() {
+                    Data = await _foodRecordsService.GetById(id),
+                    Succeeded = true,
+                }
+            );
         }
 
         [HttpPut("{id}")]
@@ -41,8 +65,11 @@ namespace backend.Controllers {
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id) {
-            return Ok(await _foodRecordsService.Delete(id));
+        public async Task<IActionResult> Delete(string id, [FromQuery] PaginationAndFilterParams filter) {
+
+            await _foodRecordsService.Delete(id, filter);
+
+            return await GetAll(filter);
         }
     }
 }

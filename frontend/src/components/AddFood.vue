@@ -1,25 +1,28 @@
 <template>
-
+  <div class="add-food-container">
     <h1>Add a Food item</h1>
 
-    <div v-if="errors">
-        {{errors[0]}}
-    </div>
-
-    <form class="mt-5" @submit.prevent="handleAddSubmit">
-        <div class="mb-3 mt-3">
-            <label class="form-label">Name:</label>
-            <input type="text" class="form-control" placeholder="Enter name" v-model="foodRecordRequest.name">
+        <div v-if="errors">
+            {{errors[0]}}
         </div>
-        <div class="mb-3">
-            <label class="form-label">Value:</label>
-            <input type="text" class="form-control" placeholder="Enter value" v-model="foodRecordRequest.value">
-        </div>
-        <button type="submit" class="btn btn-primary">Add</button>
-    </form>
 
-    {{name}}
-    {{value}}
+        <form class="mt-5" @submit.prevent="handleAddSubmit">
+            <div class="mb-3 mt-3">
+                <label class="form-label">Name:</label>
+                <input type="text" class="form-control" placeholder="Enter name" v-model="foodRecordRequest.name">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Value:</label>
+                <input type="text" class="form-control" placeholder="Enter value" v-model="foodRecordRequest.value">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Food Category:</label>
+                <input type="text" class="form-control" placeholder="Enter value" v-model="foodRecordRequest.foodCategory">
+            </div>
+            <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+  </div>
+  
 </template>
 
 <script>
@@ -53,4 +56,5 @@ export default {
 </script>
 
 <style>
+
 </style>

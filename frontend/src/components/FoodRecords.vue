@@ -1,75 +1,70 @@
 <template>
-    <div class="container-fluid food-records mt-4">
+    <div class="food-records-container mt-4">
 
-       
+        <div class="metadata">
         <router-link :to="{name: 'add'}">
             <button class="btn btn-primary mt-4 add-btn">Add Food item</button>
         </router-link>
 
-         Length: {{length}}
-        <table class="table mt-3">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Value</th>
-                    <th>Date Time</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="record in foodRecords" :key="record.id">
-                    <td>{{ record.id }}</td>
-                    <td>{{ record.name }}</td>
-                    <td>{{ record.value }}</td>
-                    <td>{{ record.dateTime }}</td>
-                    <td>
+        <SearchBarComponent @onHandleChange="logChange"/>
+        <SortComponent/>
+        </div>
 
-                        
-                        <router-link :to="{name: 'update', params: {id: record.id}}">
-                            <button class="btn btn-secondary update-btn">Update</button>
-                        </router-link>
-
-                 
-                        <button class="btn btn-danger delete-btn" @click="handleDelete(record.id)">Delete</button>
-                       
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+   
+        <div class="food-record-container" v-for="foodRecord in foodRecords" :key="foodRecord.id">
+            <FoodRecordItem :foodRecord="foodRecord" @onDeleteClick="handleDelete(foodRecord.id)"/>
+        </div>
+     
 
     </div>
 </template>
 
 <script>
-
 import useFoodRecords from '@/composables/FoodRecord/foodRecord';
-import { onMounted, onUpdated, ref } from 'vue';
+import FoodRecordItem from '../components/FoodRecordItem.vue'
+import SortComponent from '../components/SortComponent.vue'
+import SearchBarComponent from '../components/SearchBarComponent.vue'
+import { onMounted, onUpdated, ref, watchEffect } from 'vue';
 
     export default {
-        props: ['foodRecords'],
-        setup(props) {
+        components: {
+        SearchBarComponent, FoodRecordItem, SortComponent,
+        },
+        props: [],
+        setup() {
 
-           const { deleteFoodRecord, getFoodRecords, foodRecords } = useFoodRecords()
-
+           const { deleteFoodRecord, getFoodRecords, foodRecords, searchFoodRecords} = useFoodRecords()
+          
            getFoodRecords()
+
+        
+        
+            const logChange = (query) => {
+                console.log(query)
+            }
+    
+            
 
             const length = ref(null);
 
             onUpdated(() => {
+     
                 length.value = foodRecords.value.length;
             })
 
             const handleDelete = (id) => {
-                if (!window.confirm("You sure?")) {
+        
+                if (!window.confirm("Are sure?")) {
                     return;
                 }
                deleteFoodRecord(id)
              
             }
 
+            
+
             return {
-                handleDelete, length, foodRecords
+                length, foodRecords, logChange, handleDelete
             }
    
         }
@@ -79,18 +74,24 @@ import { onMounted, onUpdated, ref } from 'vue';
 
 <style scoped>
 
-.food-records {
-    max-width: 1000px;
+.food-records-container {
+
 }
-.container-fluid .add-btn {
-    float: left;
+.food-records-container  .add-btn {
+
     padding: 12px;
     font-weight: 600;
     margin: 1rem 1rem 1rem 0;
 }
 
 
-.container-fluid .update-btn {
+.food-records-container .update-btn {
+
+}
+
+.metadata {
+
+    flex: 3;
 
 }
 </style>

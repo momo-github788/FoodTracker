@@ -1,5 +1,5 @@
 <template>
-    <div class="add-food mt-4" v-if="foodRecord">
+    <div class="update-food-container" v-if="foodRecord">
         <h1>Update a Food item</h1>
 
         <form class="mt-5" @submit.prevent="handleUpdate">
@@ -10,6 +10,11 @@
             <div class="mb-3">
                 <label class="form-label">Value:</label>
                 <input type="text" class="form-control" placeholder="Enter value" v-model="foodRecord.value">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Food Category:</label>
+                <input type="text" class="form-control" placeholder="Enter value" v-model="foodRecord.foodCategory">
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
@@ -62,9 +67,14 @@ form {
     padding: 40px;
     background-color: rgb(255, 255, 255);
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 
-    0 6px 20px 0 rgba(0, 0, 0, 0.19);}
+    0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
 
 form button {
+    width: 100%;
+}
+
+form .div {
     width: 100%;
 }
 </style>

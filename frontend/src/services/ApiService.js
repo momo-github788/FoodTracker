@@ -1,5 +1,4 @@
 import axios from 'axios'
-import vue from 'vue';
 
 const client = axios.create({
     baseURL: 'https://localhost:7050/api/FoodRecords',
@@ -14,6 +13,10 @@ export default {
     },
     async getAll() {
         return await axios.get(BASE_URL);
+    },
+    async searchFoodRecords(params) {
+        console.log("params: ", params)
+        return await axios.get(BASE_URL + `/searchQuery`, {params});
     },
     async getById(id) {
         return await axios.get(BASE_URL + `/${id}`)

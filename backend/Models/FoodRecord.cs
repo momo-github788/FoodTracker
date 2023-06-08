@@ -9,5 +9,12 @@ namespace backend.Models {
         [Required(ErrorMessage = "Value is required")]
         public decimal Value { get; set; }
         public DateTime DateTime { get; set; }
+        public String FoodCategory { get; set; }
+
+
+    }
+
+    public enum FoodCategory {
+        Poultry , Beverages, Sweets, Vegetables, Fruits, Chips, Nuts
     }
 }
