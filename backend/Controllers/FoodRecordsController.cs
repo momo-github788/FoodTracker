@@ -16,21 +16,24 @@ namespace backend.Controllers
     public class FoodRecordsController : ControllerBase {
 
         private readonly FoodRecordsService _foodRecordsService;
-        private readonly ApplicationDbContext _context;
 
-        public FoodRecordsController(FoodRecordsService foodRecordsService, ApplicationDbContext context) {
+        public FoodRecordsController(FoodRecordsService foodRecordsService) {
             _foodRecordsService = foodRecordsService;
-            _context = context; 
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateFoodRecordRequest request) {
             if(!ModelState.IsValid) {
-                return BadRequest(new {
-                    message = "Please fill in all the fields"
+                return BadRequest(new ApiResponse<FoodRecordResponse> {
+                    Message = "Please enter all fields appropriately.",
+                    Succeeded = false
                 });
             }
-            return Ok(await _foodRecordsService.Create(request));
+            return Ok(new ApiResponse<FoodRecordResponse> {
+                Data = await _foodRecordsService.Create(request),
+                Message = "Food Record created successfully.",
+                Succeeded = true
+            });
         }
 
         [HttpGet]
@@ -49,8 +52,7 @@ namespace backend.Controllers
         }
         
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(string id)
-        {
+        public async Task<ActionResult> GetById(string id) {
             return Ok(
                 new ApiResponse<FoodRecordResponse>() {
                     Data = await _foodRecordsService.GetById(id),
@@ -60,14 +62,36 @@ namespace backend.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(FoodRecord request, string id) {
-            return Ok(await _foodRecordsService.Update(request, id));
+        public async Task<IActionResult> Update(FoodRecord request) {
+
+            var result = await _foodRecordsService.Update(request);
+
+            if (result == null) {
+                return BadRequest(new ApiResponse<FoodRecordResponse> {
+                    Message = "Food record does not exist",
+                    Errors = new string[] { "Food Record with Id " + request.Id + " does not exist" },
+                    Succeeded = false
+                });
+            }
+            return Ok(new ApiResponse<FoodRecordResponse> {
+                Data = result,
+                Message = "Food Record updated successfully.",
+                Succeeded = true
+            });
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id, [FromQuery] PaginationAndFilterParams filter) {
 
-            await _foodRecordsService.Delete(id, filter);
+            var result = await _foodRecordsService.Delete(id, filter);
+
+            if(result == null) {
+                return BadRequest(new ApiResponse<FoodRecordResponse> {
+                    Message = "Food record does not exist",
+                    Errors = new string[] { "Food Record with Id " + id + " does not exist" },
+                    Succeeded = false
+                });
+            }
 
             return await GetAll(filter);
         }

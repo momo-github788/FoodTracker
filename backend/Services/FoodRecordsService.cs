@@ -14,7 +14,7 @@ namespace backend.Services
         Task<ICollection<FoodRecord>> GetAll(PaginationAndFilterParams paginationFilter);
         Task<FoodRecordResponse> GetById(string id);
         Task<FoodRecordResponse> Create(CreateFoodRecordRequest requests);
-        Task<FoodRecordResponse> Update(FoodRecord request, string id);
+        Task<FoodRecordResponse> Update(FoodRecord request);
         Task<ICollection<FoodRecord>> Delete(string id, PaginationAndFilterParams paginationFilter);
     }
 }
