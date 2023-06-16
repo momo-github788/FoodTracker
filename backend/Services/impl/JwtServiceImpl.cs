@@ -1,25 +1,26 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using SuperHeroApi.Dtos.Request;
-using SuperHeroApi.Dtos.Response;
-using SuperHeroApi.Exceptions;
-using SuperHeroApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using backend.Data;
+using backend.Exceptions;
 using backend.Models;
-using SuperHeroApi.Utils;
+using backend.Utils;
+using Microsoft.EntityFrameworkCore;
+using backend.DTOs.Response;
+using backend.DTOs.Request;
 
 namespace backend.Services.impl {
     public class JwtServiceImpl : JwtService{
 
         private readonly IConfiguration _configuration;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly DatabaseContext _context;
+        private readonly UserManager<User> _userManager;
+        private readonly ApplicationDbContext _context;
         private readonly TokenValidationParameters _tokenValidationParameters;
 
 
-        public JwtService(DatabaseContext context, IConfiguration configuration, UserManager<ApplicationUser> userManager, TokenValidationParameters tokenValidationParameters) {
+        public JwtServiceImpl(ApplicationDbContext context, IConfiguration configuration, UserManager<User> userManager, TokenValidationParameters tokenValidationParameters) {
             _configuration = configuration;
             _userManager = userManager;
             _context = context;
@@ -27,7 +28,7 @@ namespace backend.Services.impl {
         }
 
 
-        public async Task<UserLoginResponseDto> GenerateJwtToken(ApplicationUser user) {
+        public async Task<UserLoginResponseDto> GenerateJwtToken(User user) {
 
             IEnumerable<Claim> claims = await GetAllValidClaims(user);
 
@@ -58,7 +59,7 @@ namespace backend.Services.impl {
                 UserId = user.Id
             };
 
-            await _context.RefreshTokens.AddAsync(refreshToken);
+            await _context.RefreshToken.AddAsync(refreshToken);
             await _context.SaveChangesAsync();
 
             return new UserLoginResponseDto {
@@ -103,7 +104,7 @@ namespace backend.Services.impl {
 
         public async Task<bool> RevokeToken(string token) {
 
-            var refreshToken = await _context.RefreshTokens.FirstOrDefaultAsync(item => item.Token == token);
+            var refreshToken = await _context.RefreshToken.FirstOrDefaultAsync(item => item.Token == token);
 
             if(refreshToken == null)
                 return false;
@@ -112,7 +113,7 @@ namespace backend.Services.impl {
 
             refreshToken.IsRevoked = true;
 
-            _context.RefreshTokens.Update(refreshToken);
+            _context.RefreshToken.Update(refreshToken);
             await _context.SaveChangesAsync();
 
             return true;
@@ -129,7 +130,7 @@ namespace backend.Services.impl {
             }
 
             // Find Refresh Token that exists in DB
-            var storedRefreshToken = await _context.RefreshTokens.FirstOrDefaultAsync(token => token.Token == request.RefreshToken);
+            var storedRefreshToken = await _context.RefreshToken.FirstOrDefaultAsync(token => token.Token == request.RefreshToken);
 
             //  VALIDATION 2 : Check is Refresh Token from database still exists  and matches the request
             if(storedRefreshToken == null) {
@@ -159,7 +160,7 @@ namespace backend.Services.impl {
             storedRefreshToken.IsUsed = true;
 
             // Save modified changes made to Refresh Token
-            _context.RefreshTokens.Update(storedRefreshToken);
+            _context.RefreshToken.Update(storedRefreshToken);
             await _context.SaveChangesAsync();
 
             // Return response with new Access Token and Refresh Token
@@ -196,5 +197,5 @@ namespace backend.Services.impl {
         }
 
     }
-}
+
 }

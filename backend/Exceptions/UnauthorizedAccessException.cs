@@ -1,4 +1,4 @@
-﻿namespace SuperHeroApi.Exceptions {
+﻿namespace backend.Exceptions {
     public class UnauthorizedAccessException: Exception {
 
         public UnauthorizedAccessException(string message) : base(message)

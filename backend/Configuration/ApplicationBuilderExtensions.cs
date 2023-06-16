@@ -1,4 +1,4 @@
-﻿namespace SuperHeroApi.Configuration {
+﻿namespace backend.Configuration {
 
     // We use this to be able to register the GlobalErrorHandler as a middleware in Program.cs
     public static class ApplicationBuilderExtensions {

@@ -7,9 +7,9 @@ namespace backend.Models {
         public virtual ICollection<FoodRecord> FoodRecords { get; set; }
 
         [StringLength(250, ErrorMessage = "About is limited to 250 characters in length.")]
-        public string About { get; set; }
+        public string? About { get; set; }
 
         [StringLength(250, ErrorMessage = "Name is limited to 250 characters in length.", MinimumLength = 3)]
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 }

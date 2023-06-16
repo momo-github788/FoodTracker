@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace SuperHeroApi.Utils
+namespace backend.Utils
 {
     public static class TokenUtils {
 

@@ -1,4 +1,4 @@
-﻿namespace SuperHeroApi.Dtos.Response {
+﻿namespace backend.DTOs.Response {
     public class UserLoginResponseDto {
         public bool Success { get; set; }
         public string AccessToken { get; set; }

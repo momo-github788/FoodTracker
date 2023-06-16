@@ -4,7 +4,7 @@ namespace backend.Repository.Impl {
     public class UnitOfWorkImpl : IUnitOfWork{ 
         private readonly ApplicationDbContext _context;
         public FoodRecordRepository FoodRecords { get; }
-
+ 
         public UnitOfWorkImpl(ApplicationDbContext context, FoodRecordRepository foodRecordsRecordRepository) {
             _context = context;
             FoodRecords = foodRecordsRecordRepository;

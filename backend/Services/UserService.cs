@@ -1,5 +1,5 @@
-﻿using SuperHeroApi.Dtos.Request;
-using SuperHeroApi.Dtos.Response;
+﻿using backend.DTOs.Request;
+using backend.DTOs.Response;
 
 namespace backend.Services {
     public interface UserService {

@@ -4,10 +4,6 @@ using backend.DTOs.Response;
 using backend.Filter;
 using backend.Models;
 using backend.Repository;
-using backend.Repository.Impl;
-using backend.Wrappers;
-using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace backend.Services.impl
 {
@@ -15,8 +11,7 @@ namespace backend.Services.impl
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public FoodRecordsServiceImpl(IUnitOfWork unitOfWork)
-        {
+        public FoodRecordsServiceImpl(IUnitOfWork unitOfWork) {
             _unitOfWork = unitOfWork;
         }
 

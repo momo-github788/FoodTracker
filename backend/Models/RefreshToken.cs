@@ -1,4 +1,4 @@
-﻿namespace SuperHeroApi.Models {
+﻿namespace backend.Models {
     public class RefreshToken {
         public int Id { get; set; }
         public string UserId { get; set; }

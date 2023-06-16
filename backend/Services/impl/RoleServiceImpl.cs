@@ -1,24 +1,19 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using SuperHeroApi.Auth;
-using SuperHeroApi.Controllers;
-using SuperHeroApi.Exceptions;
-using SuperHeroApi.Models;
 using System.Xml.Linq;
 using backend.Data;
+using backend.Exceptions;
 using backend.Models;
 using backend.Repository;
 using Microsoft.EntityFrameworkCore;
 
-namespace SuperHeroApi.Services {
-    public class RoleService : IRoleService {
+namespace backend.Services.impl {
+    public class RoleServiceImpl : RoleService {
 
-        private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public RoleService(IUnitOfWork unitOfWork, UserManager<User> userManager, RoleManager<IdentityRole> roleManager) {
-            _unitOfWork = unitOfWork;
+        public RoleServiceImpl(UserManager<User> userManager, RoleManager<IdentityRole> roleManager) {
             _userManager = userManager;
             _roleManager = roleManager;
         }

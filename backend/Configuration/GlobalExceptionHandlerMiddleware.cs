@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using SuperHeroApi.Exceptions;
+﻿using backend.Exceptions;
+using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
 
-namespace SuperHeroApi.Configuration {
+namespace backend.Configuration {
     public class GlobalExceptionHandlerMiddleware {
 
         private readonly RequestDelegate _next;
@@ -42,7 +42,7 @@ namespace SuperHeroApi.Configuration {
                 statusCode = HttpStatusCode.Unauthorized;
                 stackTrace = ex.StackTrace;
                 message = ex.Message;
-             } else if (exceptionType == typeof(AlreadyExistsException)) {
+            } else if (exceptionType == typeof(AlreadyExistsException)) {
                 statusCode = HttpStatusCode.BadRequest;
                 stackTrace = ex.StackTrace;
                 message = ex.Message;
@@ -62,7 +62,7 @@ namespace SuperHeroApi.Configuration {
 
             return context.Response.WriteAsJsonAsync(
                 new {
-                    Error = message, stackTrace, statusCode
+                    Error = message, statusCode
                 }
             );
 

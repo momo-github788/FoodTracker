@@ -1,7 +1,7 @@
 ﻿using backend.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace SuperHeroApi.Services {
+namespace backend.Services  {
     public interface RoleService {
 
         Task<bool> CreateRoleIfNotExists(string name);

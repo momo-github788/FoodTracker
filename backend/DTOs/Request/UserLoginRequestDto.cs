@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SuperHeroApi.Dtos.Request {
+namespace backend.DTOs.Request {
     public class UserLoginRequestDto {
 
         [Required(ErrorMessage = "Username is required")]

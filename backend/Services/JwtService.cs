@@ -1,6 +1,7 @@
-﻿using backend.Models;
-using SuperHeroApi.Dtos.Request;
-using SuperHeroApi.Dtos.Response;
+﻿using backend.DTOs.Request;
+using backend.DTOs.Response;
+using backend.Models;
+
 
 namespace backend.Services {
     public interface JwtService {

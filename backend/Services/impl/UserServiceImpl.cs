@@ -1,6 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using backend.DTOs.Request;
+using backend.DTOs.Response;
+using backend.Exceptions;
 using backend.Models;
 using backend.Repository;
 using backend.Services;
@@ -8,15 +11,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
-using SuperHeroApi.Auth;
-using SuperHeroApi.Dtos.Request;
-using SuperHeroApi.Dtos.Response;
-using SuperHeroApi.Exceptions;
-using SuperHeroApi.Models;
-using SuperHeroApi.Utils;
 
-namespace SuperHeroApi.Services
-{
+
+namespace backend.Services.impl {
     public class UserServiceImpl : UserService
     {
 
@@ -58,14 +55,14 @@ namespace SuperHeroApi.Services
             var result = await _userManager.CreateAsync(user, request.Password);
 
             if (result.Succeeded) {
-                var userRole = UserRoles.User.ToString();
-                var adminRole = UserRoles.Admin.ToString();
+                var userRole = UserRoles.USER.ToString();
+                var adminRole = UserRoles.ADMIN.ToString();
 
                 await _roleService.CreateRoleIfNotExists(userRole);
                 await _roleService.CreateRoleIfNotExists(adminRole);
 
 
-                await _userManager.AddToRolesAsync(applicationUser, new string[]{userRole, adminRole});
+                await _userManager.AddToRolesAsync(user, new string[]{userRole, adminRole});
                 return true;
             }
 

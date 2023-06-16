@@ -10,8 +10,7 @@ using System.Text;
 using backend.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using SuperHeroApi.Configuration;
-using SuperHeroApi.Services;
+using backend.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,13 +27,15 @@ var tokenValidationParameters = new TokenValidationParameters() {
 };
 
 builder.Services.AddScoped<UserService, UserServiceImpl>();
-//builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<RoleService, RoleServiceImpl>();
 builder.Services.AddScoped<JwtService, JwtServiceImpl>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWorkImpl>();
 builder.Services.AddScoped<FoodRecordRepository, FoodRecordRepositoryImpl>();
 builder.Services.AddScoped<FoodRecordsService, FoodRecordsServiceImpl>();
+builder.Services.AddSingleton(tokenValidationParameters);
 // Add services to the container.
 
+builder.Services.AddControllers();
 // Newtonsoft library to serialize/deserialize json requests/responses
 //builder.Services.AddControllers().AddNewtonsoftJson(options =>
 //    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
@@ -47,6 +48,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(opt => {
     opt.UseSqlServer(connectionString);
 });
+
+
 
 // Adding Identity
 builder.Services.AddIdentity<User, IdentityRole>()
@@ -62,15 +65,9 @@ builder.Services.AddAuthentication(option => {
 }).AddJwtBearer(options => {
     options.SaveToken = true;
     options.TokenValidationParameters = tokenValidationParameters;
-    options.Events = new JwtBearerEvents {
-        OnAuthenticationFailed = context => {
-            if(context.Exception.GetType() == typeof(SecurityTokenExpiredException)) {
-                context.Response.Headers.Add("IS-TOKEN-EXPIRED", "true");
-            }
-            return Task.CompletedTask;
-        }
-    };
 });
+
+builder.Services.AddAuthorization();
 
 
 builder.Services.AddEndpointsApiExplorer();
@@ -102,6 +99,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+app.AddGlobalErrorHandler();
 
 app.Run();

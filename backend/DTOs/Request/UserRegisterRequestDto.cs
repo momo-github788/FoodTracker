@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace SuperHeroApi.Dtos.Request {
+namespace backend.DTOs.Request {
     public class UserRegisterRequestDto {
 
         [DisplayName("Username")]

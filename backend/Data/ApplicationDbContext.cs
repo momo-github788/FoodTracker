@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Emit;
-using SuperHeroApi.Models;
+
 
 namespace backend.Data {
     public class ApplicationDbContext : IdentityDbContext<User> {
