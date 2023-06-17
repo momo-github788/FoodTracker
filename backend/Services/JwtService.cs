@@ -5,8 +5,8 @@ using backend.Models;
 
 namespace backend.Services {
     public interface JwtService {
-        Task<UserLoginResponseDto> GenerateJwtToken(User user);
-        Task<UserLoginResponseDto> ValidateAndGenerateNewTokens(TokenRequest request);
+        Task<UserLoginResponse> GenerateJwtToken(User user);
+        Task<UserLoginResponse> ValidateAndGenerateNewTokens(TokenRequest request);
         Task<bool> RevokeToken(string username);
     }
 }

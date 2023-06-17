@@ -8,6 +8,7 @@ using backend.Models;
 using backend.Repository;
 using backend.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
@@ -34,7 +35,7 @@ namespace backend.Services.impl {
         }
 
 
-        public async Task<bool> RegisterUser(UserRegisterRequestDto request) {
+        public async Task<bool> RegisterUser(UserRegisterRequest request) {
 
             var user = new User() {
                 UserName = request.UserName,
@@ -54,23 +55,23 @@ namespace backend.Services.impl {
 
             var result = await _userManager.CreateAsync(user, request.Password);
 
-            if (result.Succeeded) {
-                var userRole = UserRoles.USER.ToString();
-                var adminRole = UserRoles.ADMIN.ToString();
-
-                await _roleService.CreateRoleIfNotExists(userRole);
-                await _roleService.CreateRoleIfNotExists(adminRole);
-
-
-                await _userManager.AddToRolesAsync(user, new string[]{userRole, adminRole});
-                return true;
+            if (!result.Succeeded) {
+                throw new BadRequestException("Please enter all fields");
             }
 
-            return false;
+            var userRole = UserRoles.USER.ToString();
+            var adminRole = UserRoles.ADMIN.ToString();
+
+            await _roleService.CreateRoleIfNotExists(userRole);
+            await _roleService.CreateRoleIfNotExists(adminRole);
+
+
+            await _userManager.AddToRolesAsync(user, new string[] { userRole, adminRole });
+            return true;
         }
 
 
-        public async Task<UserLoginResponseDto> Login(UserLoginRequestDto request) {
+        public async Task<UserLoginResponse> Login(UserLoginRequest request) {
             // Get user from DB
             var user = await _userManager.FindByNameAsync(request.UserName);
 
@@ -84,6 +85,7 @@ namespace backend.Services.impl {
 
             throw new BadRequestException("Invalid credentials");
         }
-   
+
+
     }
 }

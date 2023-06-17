@@ -75,7 +75,6 @@ C:\Users\user\Documents\Visual Studio 2022\FoodTracker\backend\bin\Debug\net6.0\
 C:\Users\user\Documents\Visual Studio 2022\FoodTracker\backend\bin\Debug\net6.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
 C:\Users\user\Documents\Visual Studio 2022\FoodTracker\backend\bin\Debug\net6.0\Newtonsoft.Json.dll
 C:\Users\user\Documents\Visual Studio 2022\FoodTracker\backend\bin\Debug\net6.0\Newtonsoft.Json.Bson.dll
-C:\Users\user\Documents\Visual Studio 2022\FoodTracker\backend\bin\Debug\net6.0\System.Linq.Dynamic.Core.dll
 C:\Users\luqmaan\Documents\Visual Studio\FoodTracker\backend\bin\Debug\net6.0\appsettings.Development.json
 C:\Users\luqmaan\Documents\Visual Studio\FoodTracker\backend\bin\Debug\net6.0\appsettings.json
 C:\Users\luqmaan\Documents\Visual Studio\FoodTracker\backend\bin\Debug\net6.0\backend.exe
@@ -154,3 +153,4 @@ C:\Users\luqmaan\Documents\Visual Studio\FoodTracker\backend\obj\Debug\net6.0\re
 C:\Users\luqmaan\Documents\Visual Studio\FoodTracker\backend\obj\Debug\net6.0\backend.pdb
 C:\Users\luqmaan\Documents\Visual Studio\FoodTracker\backend\obj\Debug\net6.0\backend.genruntimeconfig.cache
 C:\Users\luqmaan\Documents\Visual Studio\FoodTracker\backend\obj\Debug\net6.0\ref\backend.dll
+C:\Users\user\Documents\Visual Studio 2022\FoodTracker\backend\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

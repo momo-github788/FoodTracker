@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace backend.DTOs.Request {
-    public class UserRegisterRequestDto {
+    public class UserRegisterRequest {
 
         [DisplayName("Username")]
         [Required(ErrorMessage = "Username is required")]

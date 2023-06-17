@@ -11,10 +11,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace backend.Services
 {
     public interface FoodRecordsService {
-        Task<ICollection<FoodRecord>> GetAll(PaginationAndFilterParams paginationFilter);
-        Task<FoodRecordResponse> GetById(string id);
-        Task<FoodRecordResponse> Create(CreateFoodRecordRequest requests);
-        Task<FoodRecordResponse> Update(FoodRecord request);
-        Task<ICollection<FoodRecord>> Delete(string id, PaginationAndFilterParams paginationFilter);
+
+
+        Task<ICollection<FoodRecord>> GetAll(string userId, PaginationAndFilterParams paginationFilter);
+        Task<FoodRecordResponse> GetById(string userName, string id);
+        Task<FoodRecordResponse> Create(string userName, CreateFoodRecordRequest requests);
+        Task<FoodRecordResponse> Update(string userName, FoodRecord request);
+        Task<ICollection<FoodRecord>> Delete(string userName, string id, PaginationAndFilterParams paginationFilter);
     }
 }

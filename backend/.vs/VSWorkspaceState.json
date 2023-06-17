@@ -2,9 +2,10 @@
   "ExpandedNodes": [
     "",
     "\\Controllers",
+    "\\Migrations",
     "\\Models",
     "\\Services"
   ],
-  "SelectedNode": "\\Models",
+  "SelectedNode": "\\backend.csproj",
   "PreviewInSolutionExplorer": false
 }

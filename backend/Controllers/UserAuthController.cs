@@ -34,7 +34,7 @@ namespace backend.Controllers {
 
         [AllowAnonymous]
         [HttpPost("Register")]
-        public async Task<IActionResult> Register(UserRegisterRequestDto request) {
+        public async Task<IActionResult> Register(UserRegisterRequest request) {
 
 
             if(request.Password != request.ConfirmPassword) {
@@ -48,14 +48,16 @@ namespace backend.Controllers {
             Boolean result = await _userService.RegisterUser(request);
 
             if (result) {
-                return Ok(new ApiResponse<UserLoginResponseDto>() {
-                    Succeeded = true
+                return Ok(new ApiResponse<UserLoginResponse>() {
+                    Succeeded = true,
+                    Message = "Account created successfully."
                 });
             }
-            return Ok(new ApiResponse<UserLoginResponseDto>() {
-                Succeeded = false
-            });
 
+            return BadRequest(new ApiResponse<UserLoginResponse>() {
+                Succeeded = false,
+                Message = "Error creating accoiunt."
+            });
 
         }
 
@@ -78,9 +80,9 @@ namespace backend.Controllers {
 
         [HttpPost]
         [Route("RevokeToken")]
-        public async Task<IActionResult> RevokeToken(string token) {
+        public async Task<IActionResult> RevokeToken(string refreshToken) {
 
-            var response = await _jwtService.RevokeToken(token);
+            var response = await _jwtService.RevokeToken(refreshToken);
 
             if(response) {
                 return Ok("Refresh Token revoked successfully.");
@@ -94,7 +96,7 @@ namespace backend.Controllers {
 
         [AllowAnonymous]
         [HttpPost("Login")]
-        public async Task<IActionResult> Login(UserLoginRequestDto request) {
+        public async Task<IActionResult> Login(UserLoginRequest request) {
             var result = await _userService.Login(request);
 
             return Ok(result);

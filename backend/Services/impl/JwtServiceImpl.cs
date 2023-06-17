@@ -28,7 +28,7 @@ namespace backend.Services.impl {
         }
 
 
-        public async Task<UserLoginResponseDto> GenerateJwtToken(User user) {
+        public async Task<UserLoginResponse> GenerateJwtToken(User user) {
 
             IEnumerable<Claim> claims = await GetAllValidClaims(user);
 
@@ -62,7 +62,7 @@ namespace backend.Services.impl {
             await _context.RefreshToken.AddAsync(refreshToken);
             await _context.SaveChangesAsync();
 
-            return new UserLoginResponseDto {
+            return new UserLoginResponse {
                 AccessToken = new JwtSecurityTokenHandler().WriteToken(accessToken),
                 RefreshToken = refreshToken.Token,
                 Success = true
@@ -106,10 +106,13 @@ namespace backend.Services.impl {
 
             var refreshToken = await _context.RefreshToken.FirstOrDefaultAsync(item => item.Token == token);
 
-            if(refreshToken == null)
+            if (refreshToken == null) {
+                Console.WriteLine("token " + token + " not found");
                 return false;
+            }
+             
 
-            Console.Write("Found refresh token: " + refreshToken.Token.ToString());
+            Console.Write("Found refresh token: " + token);
 
             refreshToken.IsRevoked = true;
 
@@ -119,7 +122,7 @@ namespace backend.Services.impl {
             return true;
         }
 
-        public async Task<UserLoginResponseDto> ValidateAndGenerateNewTokens(TokenRequest request) {
+        public async Task<UserLoginResponse> ValidateAndGenerateNewTokens(TokenRequest request) {
 
             // Accepts Access token to validate claims (Check security algorithm match etc)
             var claimsPrincipal = GetAndValidateClaimsFromExpiredAccessToken(request.AccessToken);
@@ -164,7 +167,7 @@ namespace backend.Services.impl {
             await _context.SaveChangesAsync();
 
             // Return response with new Access Token and Refresh Token
-            return new UserLoginResponseDto() {
+            return new UserLoginResponse() {
                 AccessToken = tokens.AccessToken,
                 RefreshToken = tokens.RefreshToken,
                 Success = true

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 namespace backend.DTOs.Request {
-    public class UserLoginRequestDto {
+    public class UserLoginRequest {
 
         [Required(ErrorMessage = "Username is required")]
         public string UserName { get; set; }

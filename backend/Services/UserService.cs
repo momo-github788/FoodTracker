@@ -3,8 +3,10 @@ using backend.DTOs.Response;
 
 namespace backend.Services {
     public interface UserService {
-        Task<bool> RegisterUser(UserRegisterRequestDto request);
+
+        //Task<UserDetailsResponse> GetUserDetailsById(string userId);
+        Task<bool> RegisterUser(UserRegisterRequest request);
         //Task<bool> RegisterAdmin(UserRegisterRequestDto request);
-        Task<UserLoginResponseDto> Login(UserLoginRequestDto request);
+        Task<UserLoginResponse> Login(UserLoginRequest request);
     }
 }

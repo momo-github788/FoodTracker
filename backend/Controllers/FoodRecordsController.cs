@@ -6,7 +6,10 @@ using backend.Models;
 using backend.Services;
 using backend.Wrappers;
 using Microsoft.AspNetCore.Mvc;
+using backend.Utils;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers
 {
@@ -15,28 +18,39 @@ namespace backend.Controllers
     [Route("api/[controller]")]
     public class FoodRecordsController : ControllerBase {
 
+        private readonly IHttpContextAccessor _context;
         private readonly FoodRecordsService _foodRecordsService;
 
-        public FoodRecordsController(FoodRecordsService foodRecordsService) {
+        public FoodRecordsController(FoodRecordsService foodRecordsService, IHttpContextAccessor context) {
             _foodRecordsService = foodRecordsService;
+            _context = context;
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create(CreateFoodRecordRequest request) {
-            if(!ModelState.IsValid) {
+            if (!ModelState.IsValid) {
                 return BadRequest(new ApiResponse<FoodRecordResponse> {
                     Message = "Please enter all fields appropriately.",
                     Succeeded = false
                 });
             }
+
+            //Console.WriteLine(_context.HttpContext?.User.FindFirstValue("userId"));
+
+ 
+            var response = await _foodRecordsService.Create(AuthUtils.getPrincipal(_context), request);
+       
+
             return Ok(new ApiResponse<FoodRecordResponse> {
-                Data = await _foodRecordsService.Create(request),
+                Data = response,
                 Message = "Food Record created successfully.",
                 Succeeded = true
             });
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll([FromQuery] PaginationAndFilterParams filter) {
 
             PaginationAndFilterParams validFilter = new PaginationAndFilterParams(
@@ -44,7 +58,7 @@ namespace backend.Controllers
             );
 
 
-            var foodRecords = await _foodRecordsService.GetAll(filter);
+            var foodRecords = await _foodRecordsService.GetAll(AuthUtils.getUserId(_context), filter);
             var totalRecords = foodRecords.Count();
 
             return Ok(new PaginationResponse<ICollection<FoodRecord>>(foodRecords, validFilter.PageNumber, validFilter.PageSize, totalRecords));
@@ -52,19 +66,21 @@ namespace backend.Controllers
         }
         
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult> GetById(string id) {
             return Ok(
                 new ApiResponse<FoodRecordResponse>() {
-                    Data = await _foodRecordsService.GetById(id),
+                    Data = await _foodRecordsService.GetById(AuthUtils.getPrincipal(_context), id),
                     Succeeded = true,
                 }
             );
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> Update(FoodRecord request) {
 
-            var result = await _foodRecordsService.Update(request);
+            var result = await _foodRecordsService.Update("eee", request);
 
             if (result == null) {
                 return BadRequest(new ApiResponse<FoodRecordResponse> {
@@ -81,9 +97,10 @@ namespace backend.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> Delete(string id, [FromQuery] PaginationAndFilterParams filter) {
 
-            var result = await _foodRecordsService.Delete(id, filter);
+            var result = await _foodRecordsService.Delete("eee", id, filter);
 
             if(result == null) {
                 return BadRequest(new ApiResponse<FoodRecordResponse> {
