@@ -1,12 +1,19 @@
 ﻿using backend.DTOs.Request;
 using backend.DTOs.Response;
 using backend.Exceptions;
+using backend.Models;
 using backend.Services;
 using backend.Wrappers;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Newtonsoft.Json;
 
 namespace backend.Controllers {
 
@@ -15,11 +22,13 @@ namespace backend.Controllers {
     [ApiController]
     public class AuthController : ControllerBase {
 
+        private readonly SignInManager<User> _signInManager;
         private readonly JwtService _jwtService;
-        private readonly UserService _userService;
+        private readonly AuthService _AuthService;
 
-        public AuthController(UserService userService, JwtService jwtService) {
-            _userService = userService;
+        public AuthController(AuthService AuthService, JwtService jwtService, SignInManager<User> signInManager) {
+            _AuthService = AuthService;
+            _signInManager = signInManager;
             _jwtService = jwtService;
         }
 
@@ -36,16 +45,17 @@ namespace backend.Controllers {
         [HttpPost("Register")]
         public async Task<IActionResult> Register(UserRegisterRequest request) {
 
-
-            if(request.Password != request.ConfirmPassword) {
-                ModelState.AddModelError(nameof(request.ConfirmPassword), "Passwords do not match.");
+            if (request == null) {
+                return BadRequest("Enter a value");
             }
 
-            if(!ModelState.IsValid) {
-                return UnprocessableEntity(ModelState);
+
+            if (!ModelState.IsValid) {
+                return BadRequest(ModelState);
             }
 
-            Boolean result = await _userService.RegisterUser(request);
+   
+            Boolean result = await _AuthService.RegisterUser(request);
 
             if (result) {
                 return Ok(new ApiResponse<UserLoginResponse>() {
@@ -56,7 +66,7 @@ namespace backend.Controllers {
 
             return BadRequest(new ApiResponse<UserLoginResponse>() {
                 Succeeded = false,
-                Message = "Error creating accoiunt."
+                Message = "Error creating account."
             });
 
         }
@@ -97,10 +107,41 @@ namespace backend.Controllers {
         [AllowAnonymous]
         [HttpPost("Login")]
         public async Task<IActionResult> Login(UserLoginRequest request) {
-            var result = await _userService.Login(request);
+            var result = await _AuthService.Login(request);
 
             return Ok(result);
 
         }
+
+        [AllowAnonymous]
+        [HttpGet("GoogleResponse")]
+        public async Task<IActionResult> GoogleResponse() {
+
+            Console.Write("Auth sucess");
+            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            var claims = result.Principal.Identities
+                .FirstOrDefault().Claims.Select(claim => new {
+                    claim.Issuer,
+                    claim.OriginalIssuer,
+                    claim.Type,
+                    claim.Value
+                });
+            return Ok("wooo");
+        }
+
+        [AllowAnonymous]
+        [HttpGet("signin-google")]
+        public ActionResult<string> home() {
+
+            return new ChallengeResult(
+                GoogleDefaults.AuthenticationScheme,
+                new AuthenticationProperties {
+                    RedirectUri = Url.Action("GoogleResponse") // Where google responds back
+                });
+
+            
+        }
+
+
     }
 }

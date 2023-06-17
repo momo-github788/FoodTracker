@@ -61,7 +61,7 @@ namespace backend.Controllers
             var foodRecords = await _foodRecordsService.GetAll(AuthUtils.getUserId(_context), filter);
             var totalRecords = foodRecords.Count();
 
-            return Ok(new PaginationResponse<ICollection<FoodRecord>>(foodRecords, validFilter.PageNumber, validFilter.PageSize, totalRecords));
+            return Ok(new PaginationResponse<ICollection<FoodRecordResponse>>(foodRecords, validFilter.PageNumber, validFilter.PageSize, totalRecords));
 
         }
         
@@ -76,19 +76,12 @@ namespace backend.Controllers
             );
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
         [Authorize]
-        public async Task<IActionResult> Update(FoodRecord request) {
+        public async Task<IActionResult> Update(UpdateFoodRecordRequest request) {
 
-            var result = await _foodRecordsService.Update("eee", request);
+            var result = await _foodRecordsService.Update(request);
 
-            if (result == null) {
-                return BadRequest(new ApiResponse<FoodRecordResponse> {
-                    Message = "Food record does not exist",
-                    Errors = new string[] { "Food Record with Id " + request.Id + " does not exist" },
-                    Succeeded = false
-                });
-            }
             return Ok(new ApiResponse<FoodRecordResponse> {
                 Data = result,
                 Message = "Food Record updated successfully.",

@@ -11,6 +11,11 @@ using backend.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using backend.Configuration;
+using backend.Policies;
+using Microsoft.Extensions.Options;
+using System.Reflection;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +31,10 @@ var tokenValidationParameters = new TokenValidationParameters() {
     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Jwt:Key").Value))
 };
 
+
+
+
+builder.Services.AddScoped<AuthService, AuthServiceImpl>();
 builder.Services.AddScoped<UserService, UserServiceImpl>();
 builder.Services.AddScoped<RoleService, RoleServiceImpl>();
 builder.Services.AddScoped<JwtService, JwtServiceImpl>();
@@ -33,6 +42,8 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWorkImpl>();
 builder.Services.AddScoped<FoodRecordRepository, FoodRecordRepositoryImpl>();
 builder.Services.AddScoped<FoodRecordsService, FoodRecordsServiceImpl>();
 builder.Services.AddSingleton(tokenValidationParameters);
+//builder.Services.AddTransient<IPasswordValidator<User>, PasswordPolicy>();
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -56,16 +67,27 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.Configure<IdentityOptions>(opts => {
+    opts.Password.RequiredLength = 6;
+    opts.Password.RequireLowercase = false;
+    opts.User.RequireUniqueEmail = true;
+    opts.Password.RequireUppercase = false;
+});
 
 // Adding authentication
-builder.Services.AddAuthentication(option => {
-    option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+builder.Services.AddAuthentication(options => {
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
 }).AddJwtBearer(options => {
     options.SaveToken = true;
     options.TokenValidationParameters = tokenValidationParameters;
+})
+.AddCookie()
+.AddGoogle(GoogleDefaults.AuthenticationScheme, options => {
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 });
+
 
 builder.Services.AddAuthorization();
 
@@ -83,6 +105,9 @@ builder.Services.AddCors(options => {
     });
 });
 
+builder.Configuration.AddEnvironmentVariables()
+    .AddUserSecrets(Assembly.GetExecutingAssembly(), true);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -90,6 +115,8 @@ if (app.Environment.IsDevelopment()) {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+
 
 app.UseCors("VueCorsPolicy");
 

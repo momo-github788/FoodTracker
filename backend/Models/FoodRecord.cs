@@ -14,7 +14,7 @@ namespace backend.Models {
         public DateTime DateTime { get; set; }
         public string FoodCategory { get; set; }
 
-        public virtual User User { get; set; }
+        public virtual User? User { get; set; }
         public string UserId { get; set; }
 
     }

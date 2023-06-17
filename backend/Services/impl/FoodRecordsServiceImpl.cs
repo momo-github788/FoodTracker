@@ -1,6 +1,7 @@
 ﻿using backend.Data;
 using backend.DTOs.Request;
 using backend.DTOs.Response;
+using backend.Exceptions;
 using backend.Filter;
 using backend.Models;
 using backend.Repository;
@@ -9,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services.impl
 {
-    public class FoodRecordsServiceImpl : Services.FoodRecordsService
+    public class FoodRecordsServiceImpl : FoodRecordsService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<User> _userManager;
@@ -56,7 +57,7 @@ namespace backend.Services.impl
         }
 
 
-        public async Task<ICollection<FoodRecord>> GetAll(string userId, PaginationAndFilterParams filter) {
+        public async Task<ICollection<FoodRecordResponse>> GetAll(string userId, PaginationAndFilterParams filter) {
 
             var query = filter.SearchQuery;
             var sortDir = filter.SortDir;
@@ -101,7 +102,7 @@ namespace backend.Services.impl
             // Pagination
             var foodRecordsPaged = foodRecords
                 .Where(item => item.UserId == userId)
-                //.Select(item => ConvertFoodRecordRequestToResponseDTO(item))
+                .Select(item => ConvertFoodRecordRequestToResponseDTO(item))
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
                 .Take(filter.PageSize)
                 .ToList();
@@ -110,7 +111,7 @@ namespace backend.Services.impl
 
         }
 
-        public async Task<ICollection<FoodRecord>> Delete(string userName, string id, PaginationAndFilterParams filter) {
+        public async Task<ICollection<FoodRecordResponse>> Delete(string userName, string id, PaginationAndFilterParams filter) {
             var foodRecord = await _unitOfWork.FoodRecords.GetById(id);
 
             if(foodRecord == null) {
@@ -128,28 +129,26 @@ namespace backend.Services.impl
         }
 
 
-        public async Task<FoodRecordResponse> Update(string userName, FoodRecord request) {
+        public async Task<FoodRecordResponse> Update(UpdateFoodRecordRequest request) {
             var foodRecord = await _unitOfWork.FoodRecords.GetById(request.Id);
 
-            if(foodRecord != null) {
-                Console.WriteLine("found record with id:" + request.Id);
-                foodRecord.Name = request.Name;
-                foodRecord.Value = request.Value;
-                foodRecord.FoodCategory = request.FoodCategory;
-
-                _unitOfWork.FoodRecords.Update(foodRecord);
-
-                var result = _unitOfWork.Save();
-                Console.WriteLine("result:" + result);
-                if(result > 0) {
-                    return ConvertFoodRecordRequestToResponseDTO(foodRecord);
-                }
+            if(foodRecord == null) {
+                throw new BadRequestException("Food Record not found");
 
             }
 
-            Console.WriteLine("Cant find record with id: " + request.Id);
-    
+            Console.WriteLine("found record with id:" + request.Id);
+            foodRecord.Name = request.Name;
+            foodRecord.Value = request.Value;
+            foodRecord.FoodCategory = request.FoodCategory;
 
+            _unitOfWork.FoodRecords.Update(foodRecord);
+
+            var result = _unitOfWork.Save();
+            Console.WriteLine("result:" + result);
+            if (result > 0) {
+                return ConvertFoodRecordRequestToResponseDTO(foodRecord);
+            }
             return null;
         }
 
@@ -159,7 +158,9 @@ namespace backend.Services.impl
                 Name = foodRecord.Name,
                 Value = foodRecord.Value,
                 DateTime = foodRecord.DateTime,
-                FoodCategory = foodRecord.FoodCategory
+                FoodCategory = foodRecord.FoodCategory,
+                UserId = foodRecord.UserId,
+                
             };
 
 

@@ -13,10 +13,10 @@ namespace backend.Services
     public interface FoodRecordsService {
 
 
-        Task<ICollection<FoodRecord>> GetAll(string userId, PaginationAndFilterParams paginationFilter);
+        Task<ICollection<FoodRecordResponse>> GetAll(string userId, PaginationAndFilterParams paginationFilter);
         Task<FoodRecordResponse> GetById(string userName, string id);
         Task<FoodRecordResponse> Create(string userName, CreateFoodRecordRequest requests);
-        Task<FoodRecordResponse> Update(string userName, FoodRecord request);
-        Task<ICollection<FoodRecord>> Delete(string userName, string id, PaginationAndFilterParams paginationFilter);
+        Task<FoodRecordResponse> Update(UpdateFoodRecordRequest request);
+        Task<ICollection<FoodRecordResponse>> Delete(string userName, string id, PaginationAndFilterParams paginationFilter);
     }
 }
