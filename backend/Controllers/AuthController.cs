@@ -12,8 +12,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Text;
+using backend.Repository;
+using backend.Utils;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace backend.Controllers {
 
@@ -21,16 +25,23 @@ namespace backend.Controllers {
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase {
+
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly EmailService _emailService;
+        private readonly IHttpContextAccessor _context;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly JwtService _jwtService;
         private readonly AuthService _AuthService;
 
-        public AuthController(AuthService AuthService, UserManager<User> userManager, JwtService jwtService, SignInManager<User> signInManager) {
+        public AuthController(IUnitOfWork unitOfWork, EmailService emailService, AuthService AuthService, IHttpContextAccessor context, UserManager<User> userManager, JwtService jwtService, SignInManager<User> signInManager) {
             _AuthService = AuthService;
             _signInManager = signInManager;
             _userManager = userManager;
             _jwtService = jwtService;
+            _unitOfWork = unitOfWork;
+            _context = context;
+            _emailService = emailService;
         }
 
         [AllowAnonymous]
@@ -55,10 +66,40 @@ namespace backend.Controllers {
                 return BadRequest(ModelState);
             }
 
-   
-            Boolean result = await _AuthService.RegisterUser(request);
+            var user = await _AuthService.RegisterUser(request);
 
-            if (result) {
+            if (user != null) {
+
+                var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var emailBody = $"Please confirm your email address <a href=\"#URL#\"> Click here</a>";
+
+                await _unitOfWork.ConfirmationTokens.Add(new ConfirmationToken {
+                    EmailConfirmationToken = confirmationToken,
+                    UserId = user.Id
+                });
+                var result = _unitOfWork.Save();
+
+                if(result < 1) {
+                    Console.WriteLine("Error saving coonfirm token");
+                    return null;
+                }
+
+
+                var callback_url = Request.Scheme + "://" + Request.Host + Url.Action("ConfirmEmail", "Auth",
+                new { 
+                    userId = user.Id,
+                    confirmationToken = confirmationToken
+                });
+
+                var body = emailBody.Replace("#URL#",
+                    System.Text.Encodings.Web.HtmlEncoder.Default.Encode(callback_url));
+
+                Console.WriteLine("callback: " + callback_url);
+
+                _emailService.sendEmail("axel.nienow@ethereal.email", "Email Verification", body, user.Email);
+
+         
+
                 return Ok(new ApiResponse<UserLoginResponse>() {
                     Succeeded = true,
                     Message = "Account created successfully."
@@ -70,6 +111,42 @@ namespace backend.Controllers {
                 Message = "Error creating account."
             });
 
+        }
+
+
+
+            [AllowAnonymous]
+        [Route("ConfirmEmail")]
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string confirmationToken) {
+            if (userId == null || confirmationToken == null) {
+                return BadRequest("Invalid Email confirmation Token");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null) {
+                return BadRequest("Invalid Email parameters");
+            }
+
+            if (user.EmailConfirmed) {
+                return BadRequest("Your email address has already been verified");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, confirmationToken);
+
+            var status = result.Succeeded
+                ? "Email has been verified successfully"
+                : "Email was not verified, please check your email for a new confirmation link";
+
+            return Ok(status);
+        }
+
+        [AllowAnonymous]
+        [Route("ResendConfirmationEmail")]
+        [HttpGet]
+        public async Task<IActionResult> ResendConfirmationEmail(string userId, string oldConfirmationToken) {
+            return Ok();
         }
 
         [AllowAnonymous]
@@ -99,13 +176,26 @@ namespace backend.Controllers {
                 return Ok("Refresh Token revoked successfully.");
             }
             return BadRequest("Invalid token");
-
-
-
-
         }
 
-        [AllowAnonymous]
+
+        [Authorize]
+        [HttpGet("Welcome")]
+        public async Task<IActionResult> Welcome() {
+            var user = await _userManager.FindByNameAsync(AuthUtils.getPrincipal(_context));
+
+            Console.WriteLine(AuthUtils.getPrincipal(_context));
+
+            if (user == null) {
+                return BadRequest("Not found");
+            }
+
+
+            //_emailService.sendEmail("axel.nienow@ethereal.email", "Test", "This is test", user.Email);
+            return Ok(user);
+        }
+
+            [AllowAnonymous]
         [HttpPost("Login")]
         public async Task<IActionResult> Login(UserLoginRequest request) {
             var result = await _AuthService.Login(request);
@@ -118,29 +208,34 @@ namespace backend.Controllers {
         [HttpGet("GoogleResponse")]
         public async Task<IActionResult> GoogleResponse() {
             ExternalLoginInfo info = await _signInManager.GetExternalLoginInfoAsync();
-            Console.Write("info: " + info.LoginProvider);
-            //return Ok("wooo");
+        
+
             if (info == null)
                 return RedirectToAction(nameof(Login));
 
+
+            Console.WriteLine(info.Principal.Claims.ToList());
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
-            string[] userInfo = { info.Principal.FindFirst(ClaimTypes.Name).Value, info.Principal.FindFirst(ClaimTypes.Email).Value };
-            Console.WriteLine(userInfo);
+            //string[] userInfo = { info.Principal.FindFirst(ClaimTypes.Name).Value, info.Principal.FindFirst(ClaimTypes.Email).Value };
+            if (result.IsLockedOut) {
+                return BadRequest("Account is locked");
+            }
 
-            if (result.Succeeded)
-                return Ok("Login suces");
-            else {
-                var user = new User {
-                    Email = info.Principal.FindFirst(ClaimTypes.Email).Value,
-                    UserName = info.Principal.FindFirst(ClaimTypes.Email).Value
-                };
+            var user = new User {
+                Email = info.Principal.FindFirst(ClaimTypes.Email).Value,
+                UserName = info.Principal.FindFirst(ClaimTypes.Email).Value
+            };
 
+
+            if (result.Succeeded) {
+                return Ok("Existing user.. sign in " + user);
+            } else {
                 IdentityResult identResult = await _userManager.CreateAsync(user);
                 if (identResult.Succeeded) {
                     identResult = await _userManager.AddLoginAsync(user, info);
                     if (identResult.Succeeded) {
                         await _signInManager.SignInAsync(user, false);
-                        return Ok("Successly added login to db");
+                        return Ok("New user..Added " + user);
                     }
                 }
                 return BadRequest("Error ");
@@ -148,22 +243,18 @@ namespace backend.Controllers {
         }
 
 
-        //[AllowAnonymous]
-        //[Route("SignIn/{provider}")]
-        //public IActionResult SignIn(string provider) {
-        //    return Challenge(new AuthenticationProperties(), provider);
-        //}
-
         [AllowAnonymous]
         [HttpGet("SignIn/{provider}")]
         public ActionResult<string> SignIn(string provider) {
 
-            var authProperties = new AuthenticationProperties {
-                RedirectUri = Url.Action(nameof(GoogleResponse)),
-                Items = { new KeyValuePair<string, string>("LoginProvider", provider),
-                 new KeyValuePair<string, string>("NameIdentifier", provider)}
-            };
-            return Challenge(authProperties, provider);
+            //var authProperties = new AuthenticationProperties {
+            //    RedirectUri = Url.Action(nameof(GoogleResponse), pr, "google"),
+            //};
+            //return Challenge(authProperties, provider);
+
+            var redirectUrl = Url.Action(nameof(GoogleResponse));
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return Challenge(properties, provider);
 
             //return new ChallengeResult(
             //    GoogleDefaults.AuthenticationScheme, new AuthenticationProperties {
@@ -178,11 +269,7 @@ namespace backend.Controllers {
         [HttpGet("GoogleLogout")]
         public async Task<ActionResult<string>> logout() {
             await HttpContext.SignOutAsync();
-            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            result.Principal.Identities.FirstOrDefault().Claims.ToList()
-            .ForEach(s => Console.WriteLine(s));
-            return Ok("Logged out");
+            return Redirect(Url.Action(nameof(Login)));
         }
 
     }

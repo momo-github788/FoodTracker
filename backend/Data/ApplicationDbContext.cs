@@ -14,9 +14,10 @@ namespace backend.Data {
         protected override void OnModelCreating(ModelBuilder builder) {
             base.OnModelCreating(builder);
 
-            builder.Entity<User>()
-                .HasMany(u => u.FoodRecords)
-                .WithOne(tr => tr.User).IsRequired();
+            //builder.Entity<User>()
+            //    .HasMany(u => u.FoodRecords)
+            //    .WithOne(tr => tr.User).IsRequired();
+
 
 
 
@@ -27,6 +28,7 @@ namespace backend.Data {
             builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogin");
         }
 
+        public DbSet<ConfirmationToken> ConfirmationToken { get; set; }
         public DbSet<FoodRecord> FoodRecords { get; set; }
         public DbSet<RefreshToken> RefreshToken { get; set; }
     }

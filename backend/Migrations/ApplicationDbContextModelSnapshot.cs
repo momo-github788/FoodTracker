@@ -22,6 +22,31 @@ namespace backend.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("backend.Models.ConfirmationToken", b =>
+                {
+                    b.Property<int>("ConfirmationTokenId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConfirmationTokenId"), 1L, 1);
+
+                    b.Property<string>("EmailConfirmationToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ResendEmailConfirmationToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ConfirmationTokenId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ConfirmationToken");
+                });
+
             modelBuilder.Entity("backend.Models.FoodRecord", b =>
                 {
                     b.Property<string>("Id")
@@ -296,6 +321,17 @@ namespace backend.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("backend.Models.ConfirmationToken", b =>
+                {
+                    b.HasOne("backend.Models.User", "User")
+                        .WithMany("ConfirmationTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("backend.Models.FoodRecord", b =>
                 {
                     b.HasOne("backend.Models.User", "User")
@@ -360,6 +396,8 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.User", b =>
                 {
+                    b.Navigation("ConfirmationTokens");
+
                     b.Navigation("FoodRecords");
                 });
 #pragma warning restore 612, 618

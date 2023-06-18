@@ -39,6 +39,8 @@ builder.Services.AddScoped<UserService, UserServiceImpl>();
 builder.Services.AddScoped<RoleService, RoleServiceImpl>();
 builder.Services.AddScoped<JwtService, JwtServiceImpl>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWorkImpl>();
+builder.Services.AddScoped<EmailService, EmailServiceImpl>();
+builder.Services.AddScoped<ConfirmationTokenRepository, ConfirmationTokenRepositoryImpl>();
 builder.Services.AddScoped<FoodRecordRepository, FoodRecordRepositoryImpl>();
 builder.Services.AddScoped<FoodRecordsService, FoodRecordsServiceImpl>();
 builder.Services.AddSingleton(tokenValidationParameters);
@@ -68,25 +70,27 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddDefaultTokenProviders();
 
 builder.Services.Configure<IdentityOptions>(opts => {
+    opts.SignIn.RequireConfirmedEmail = true;
     opts.Password.RequiredLength = 6;
     opts.Password.RequireLowercase = false;
     opts.User.RequireUniqueEmail = true;
+
     opts.Password.RequireUppercase = false;
 });
 
 // Adding authentication
 builder.Services.AddAuthentication(options => {
     //options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    //options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    //options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })   
 .AddJwtBearer(options => {
     options.SaveToken = true;
     options.TokenValidationParameters = tokenValidationParameters;
 })
 .AddCookie(options => {
-    options.LoginPath = "/api/auth/SignIn/Google";
+    //options.LoginPath = "/api/auth/SignIn/Google";
 })  
 .AddGoogle(GoogleDefaults.AuthenticationScheme, options => {
     options.Scope.Add("email");

@@ -6,6 +6,7 @@ using backend.Repository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using System.Security.Policy;
 
 namespace backend.Services.impl {
@@ -29,50 +30,54 @@ namespace backend.Services.impl {
         }
 
 
-        public async Task<bool> RegisterUser(UserRegisterRequest request) {
+        public async Task<User> RegisterUser(UserRegisterRequest request) {
+
+      
+
+            var userNameExists = await _userManager.FindByNameAsync(request.UserName);
+            var emailExists = await _userManager.FindByEmailAsync(request.EmailAddress);
+
+            if (userNameExists != null || emailExists != null) {
+                throw new BadRequestException("Username/Email Address already exists.");
+            }
 
             var user = new User() {
                 UserName = request.UserName,
-                Email = request.EmailAddress
+                Email = request.EmailAddress,
+                //EmailConfirmed = false
             };
-
-            var userNameExists = await _userManager.FindByNameAsync(user.UserName);
-            var emailExists = await _userManager.FindByEmailAsync(user.Email);
-
-            if (userNameExists != null) {
-                throw new BadRequestException("Username already exists.");
-            }
-
-            if (emailExists != null) {
-                throw new BadRequestException("Email address already exists.");
-            }
-
             var result = await _userManager.CreateAsync(user, request.Password);
 
-            //if (!result.Succeeded) {
-            //    throw new BadRequestException("Please enter all fields");
-            //}
+            if (result.Succeeded) {
+      
+                var userRole = UserRoles.USER.ToString();
+                var adminRole = UserRoles.ADMIN.ToString();
 
-            var userRole = UserRoles.USER.ToString();
-            var adminRole = UserRoles.ADMIN.ToString();
-
-            await _roleService.CreateRoleIfNotExists(userRole);
-            await _roleService.CreateRoleIfNotExists(adminRole);
+                await _roleService.CreateRoleIfNotExists(userRole);
+                await _roleService.CreateRoleIfNotExists(adminRole);
 
 
-            await _userManager.AddToRolesAsync(user, new string[] { userRole, adminRole });
-            return true;
+                await _userManager.AddToRolesAsync(user, new string[] { userRole, adminRole });
+                return user;
+            }
+
+            return null;
+
+
         }
 
 
         public async Task<UserLoginResponse> Login(UserLoginRequest request) {
-            // Get user from DB
+            // Use username to authenticate
             var user = await _userManager.FindByNameAsync(request.UserName);
 
             // Valid user
             var success = await _userManager.CheckPasswordAsync(user, request.Password);
 
             if (success) {
+                if (!user.EmailConfirmed) {
+                    throw new BadRequestException("Email address is not verified.");
+                }
                 var response = await _jwtService.GenerateJwtToken(user);
                 return response;
             }
