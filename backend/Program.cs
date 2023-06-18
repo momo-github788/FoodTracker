@@ -76,16 +76,24 @@ builder.Services.Configure<IdentityOptions>(opts => {
 
 // Adding authentication
 builder.Services.AddAuthentication(options => {
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-}).AddJwtBearer(options => {
+    //options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})   
+.AddJwtBearer(options => {
     options.SaveToken = true;
     options.TokenValidationParameters = tokenValidationParameters;
 })
-.AddCookie()
+.AddCookie(options => {
+    options.LoginPath = "/api/auth/SignIn/Google";
+})  
 .AddGoogle(GoogleDefaults.AuthenticationScheme, options => {
+    options.Scope.Add("email");
+    options.Scope.Add("profile");
     options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    options.SignInScheme = IdentityConstants.ExternalScheme;
 });
 
 

@@ -21,14 +21,15 @@ namespace backend.Controllers {
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase {
-
+        private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly JwtService _jwtService;
         private readonly AuthService _AuthService;
 
-        public AuthController(AuthService AuthService, JwtService jwtService, SignInManager<User> signInManager) {
+        public AuthController(AuthService AuthService, UserManager<User> userManager, JwtService jwtService, SignInManager<User> signInManager) {
             _AuthService = AuthService;
             _signInManager = signInManager;
+            _userManager = userManager;
             _jwtService = jwtService;
         }
 
@@ -116,32 +117,73 @@ namespace backend.Controllers {
         [AllowAnonymous]
         [HttpGet("GoogleResponse")]
         public async Task<IActionResult> GoogleResponse() {
+            ExternalLoginInfo info = await _signInManager.GetExternalLoginInfoAsync();
+            Console.Write("info: " + info.LoginProvider);
+            //return Ok("wooo");
+            if (info == null)
+                return RedirectToAction(nameof(Login));
 
-            Console.Write("Auth sucess");
-            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            var claims = result.Principal.Identities
-                .FirstOrDefault().Claims.Select(claim => new {
-                    claim.Issuer,
-                    claim.OriginalIssuer,
-                    claim.Type,
-                    claim.Value
-                });
-            return Ok("wooo");
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
+            string[] userInfo = { info.Principal.FindFirst(ClaimTypes.Name).Value, info.Principal.FindFirst(ClaimTypes.Email).Value };
+            Console.WriteLine(userInfo);
+
+            if (result.Succeeded)
+                return Ok("Login suces");
+            else {
+                var user = new User {
+                    Email = info.Principal.FindFirst(ClaimTypes.Email).Value,
+                    UserName = info.Principal.FindFirst(ClaimTypes.Email).Value
+                };
+
+                IdentityResult identResult = await _userManager.CreateAsync(user);
+                if (identResult.Succeeded) {
+                    identResult = await _userManager.AddLoginAsync(user, info);
+                    if (identResult.Succeeded) {
+                        await _signInManager.SignInAsync(user, false);
+                        return Ok("Successly added login to db");
+                    }
+                }
+                return BadRequest("Error ");
+            }
+        }
+
+
+        //[AllowAnonymous]
+        //[Route("SignIn/{provider}")]
+        //public IActionResult SignIn(string provider) {
+        //    return Challenge(new AuthenticationProperties(), provider);
+        //}
+
+        [AllowAnonymous]
+        [HttpGet("SignIn/{provider}")]
+        public ActionResult<string> SignIn(string provider) {
+
+            var authProperties = new AuthenticationProperties {
+                RedirectUri = Url.Action(nameof(GoogleResponse)),
+                Items = { new KeyValuePair<string, string>("LoginProvider", provider),
+                 new KeyValuePair<string, string>("NameIdentifier", provider)}
+            };
+            return Challenge(authProperties, provider);
+
+            //return new ChallengeResult(
+            //    GoogleDefaults.AuthenticationScheme, new AuthenticationProperties {
+            //        // Maps action name to it's URL value
+            //        RedirectUri = Url.Action(nameof(GoogleResponse))
+            //    });
+
+
         }
 
         [AllowAnonymous]
-        [HttpGet("signin-google")]
-        public ActionResult<string> home() {
+        [HttpGet("GoogleLogout")]
+        public async Task<ActionResult<string>> logout() {
+            await HttpContext.SignOutAsync();
+            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            return new ChallengeResult(
-                GoogleDefaults.AuthenticationScheme,
-                new AuthenticationProperties {
-                    RedirectUri = Url.Action("GoogleResponse") // Where google responds back
-                });
-
-            
+            result.Principal.Identities.FirstOrDefault().Claims.ToList()
+            .ForEach(s => Console.WriteLine(s));
+            return Ok("Logged out");
         }
-
 
     }
 }
