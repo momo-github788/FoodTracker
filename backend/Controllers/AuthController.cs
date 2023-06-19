@@ -1,4 +1,5 @@
-﻿using backend.DTOs.Request;
+﻿using System.ComponentModel.DataAnnotations;
+using backend.DTOs.Request;
 using backend.DTOs.Response;
 using backend.Exceptions;
 using backend.Models;
@@ -33,10 +34,10 @@ namespace backend.Controllers {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly JwtService _jwtService;
-        private readonly AuthService _AuthService;
+        private readonly AuthService _authService;
 
         public AuthController(ConfirmationTokenService confirmationTokenService, IUnitOfWork unitOfWork, EmailService emailService, AuthService AuthService, IHttpContextAccessor context, UserManager<User> userManager, JwtService jwtService, SignInManager<User> signInManager) {
-            _AuthService = AuthService;
+            _authService = AuthService;
             _signInManager = signInManager;
             _userManager = userManager;
             _jwtService = jwtService;
@@ -68,19 +69,71 @@ namespace backend.Controllers {
                 return BadRequest(ModelState);
             }
 
-            var user = await _AuthService.RegisterUser(request);
+            var user = await _authService.RegisterUser(request);
 
             if (user != null) {
 
-                return Ok(new ApiResponse<UserLoginResponse>() {
+                return Ok(new ApiResponse<List<string>>() {
                     Succeeded = true,
                     Message = "Account created successfully."
                 });
             }
 
-            return BadRequest(new ApiResponse<UserLoginResponse>() {
+            return BadRequest(new ApiResponse<List<string>>() {
                 Succeeded = false,
-                Message = "Error creating account."
+                Message = "Error creating account.",
+                Errors = new[] {
+                    "Error creating account."
+                }
+            });
+
+        }
+
+        [AllowAnonymous]
+        [Route("ForgotPassword")]
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword([Required] string emailAddress) {
+            var response = await _authService.ForgotPassword(emailAddress);
+
+            return Ok(response);
+        }
+
+
+        [AllowAnonymous]
+        [Route("ResetPassword")]
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordRequest request) {
+            var success = await _authService.ResetPassword(request);
+
+            if (success) {
+
+
+                return Ok(new ApiResponse<List<string>>{
+                    Succeeded = true,
+                    Message = "Password has been changed successfully."
+                });
+            }
+
+            return BadRequest(new ApiResponse<List<string>>{
+                Succeeded = false,
+                Message = "There was an error changing your password, please try again later.",
+                Errors = new[] {
+                    "There was an error changing your password, please try again later."
+                }
+            });
+        }
+
+        [AllowAnonymous]
+        [Route("ResetPassword")]
+        [HttpGet]
+        public async Task<IActionResult> ResetPassword(string passwordResetToken, string emailAddress) {
+            var request = new ResetPasswordRequest {
+                PasswordResetToken = passwordResetToken,
+                EmailAddress = emailAddress
+            };
+
+            return Ok(new {
+                request
             });
 
         }
@@ -103,11 +156,9 @@ namespace backend.Controllers {
         [AllowAnonymous]
         [Route("ResendConfirmationEmail")]
         [HttpGet]
-        public async Task<IActionResult> ResendConfirmationEmail([FromQuery] string oldConfirmationToken) {
-            Console.WriteLine("Ddddddddddddddddddddddddddddd");
+        public async Task<IActionResult> ResendConfirmationEmail(string oldConfirmationToken) {
 
-            var response = await _confirmationTokenService
-                .GenerateNewConfirmationToken(oldConfirmationToken);
+            var response = await _confirmationTokenService.GenerateNewConfirmationToken(oldConfirmationToken);
             return Ok(response);
         }
 
@@ -142,8 +193,9 @@ namespace backend.Controllers {
 
 
         [AllowAnonymous]
-        [HttpGet("test")]
-        public async Task<IActionResult> test() {
+        [HttpGet]
+        [Route("GetToken")]
+        public async Task<IActionResult> test([FromQuery] string confirmationToken) {
             //var user = await _userManager.FindByNameAsync(AuthUtils.getPrincipal(_context));
 
             //Console.WriteLine(AuthUtils.getPrincipal(_context));
@@ -153,7 +205,7 @@ namespace backend.Controllers {
             //}
 
 
-            var response = await _confirmationTokenService.GetConfirmationToken("3");
+            var response = await _confirmationTokenService.GetConfirmationToken(confirmationToken);
      
             //_emailService.sendEmail("axel.nienow@ethereal.email", "Test", "This is test", user.Email);
             return Ok(response);
@@ -162,7 +214,7 @@ namespace backend.Controllers {
             [AllowAnonymous]
         [HttpPost("Login")]
         public async Task<IActionResult> Login(UserLoginRequest request) {
-            var result = await _AuthService.Login(request);
+            var result = await _authService.Login(request);
 
             return Ok(result);
 

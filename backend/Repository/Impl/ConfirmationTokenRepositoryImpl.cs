@@ -14,7 +14,7 @@ namespace backend.Repository.Impl {
 
         public async Task<ConfirmationToken> GetByConfirmationToken(string confirmationToken) {
             return await _context.ConfirmationToken.
-                Where(t => t.EmailConfirmationToken == confirmationToken).SingleOrDefaultAsync();
+                Where(t => t.Token == confirmationToken).SingleOrDefaultAsync();
 
             
         }

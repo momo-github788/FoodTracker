@@ -73,20 +73,34 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt => {
 });
 
 
-
 // Adding Identity
-builder.Services.AddIdentity<User, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+builder.Services.AddIdentity<User, IdentityRole>(options => {
+        options.SignIn.RequireConfirmedEmail = true;
 
-builder.Services.Configure<IdentityOptions>(opts => {
-    opts.SignIn.RequireConfirmedEmail = true;
-    opts.Password.RequiredLength = 6;
-    opts.Password.RequireLowercase = false;
-    opts.User.RequireUniqueEmail = true;
+        options.Password.RequiredLength = 6;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireUppercase = false;
 
-    opts.Password.RequireUppercase = false;
+        options.User.RequireUniqueEmail = true;
+        
+        //options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultEmailProvider;
+        //options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
+    }).AddDefaultTokenProviders()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.Configure<DataProtectionTokenProviderOptions>(opt => {
+    opt.TokenLifespan = TimeSpan.FromMinutes(30);
 });
+ 
+
+//builder.Services.Configure<IdentityOptions>(opts => {
+//    opts.SignIn.RequireConfirmedEmail = true;
+//    opts.Password.RequiredLength = 6;
+//    opts.Password.RequireLowercase = false;
+//    opts.User.RequireUniqueEmail = true;
+
+//    opts.Password.RequireUppercase = false;
+//});
 
 // Adding authentication
 builder.Services.AddAuthentication(options => {

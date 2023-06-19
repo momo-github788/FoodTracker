@@ -9,7 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Asn1.Ocsp;
+using System;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Policy;
+using System.Web;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Services.impl {
 
@@ -59,21 +63,23 @@ namespace backend.Services.impl {
             if (result.Succeeded) {
                 var confirmationToken = await _confirmationTokenService.GenerateConfirmationToken(user.Id);
 
-                Console.WriteLine("token created: " + confirmationToken);
+                Console.WriteLine("Registered.. generating token: " + confirmationToken);
+
                 var emailBody = $"Please confirm your email address <a href=\"#URL#\"> Click here</a>";
 
                 var callback_url = "https://localhost:7050" + _urlHelper.Action("ConfirmEmail", "Auth",
                  new {
                      userId = confirmationToken.UserId,
-                     confirmationToken = confirmationToken.EmailConfirmationToken
+                     confirmationToken = confirmationToken.Token
                  });
 
-                Console.WriteLine("callback: " + callback_url);
+                //string toBeSearched = "&confirmationToken=";
+                //string code = callback_url.Substring(callback_url.IndexOf(toBeSearched) + toBeSearched.Length);
 
+                var body = emailBody.Replace("#URL#", callback_url);
 
-                var body = emailBody.Replace("#URL#",
-                    System.Text.Encodings.Web.HtmlEncoder.Default.Encode(callback_url));
-
+                Console.WriteLine("callback: " + body);
+    
                 _emailService.sendEmail("axel.nienow@ethereal.email", "Email Verification", body, user.Email);
 
 
@@ -94,7 +100,8 @@ namespace backend.Services.impl {
 
         }
 
-      
+
+     
 
 
         public async Task<UserLoginResponse> Login(UserLoginRequest request) {
@@ -119,5 +126,43 @@ namespace backend.Services.impl {
             return null;
         }
 
+        public async Task<bool> ResetPassword(ResetPasswordRequest request) {
+            var user = await _userManager.FindByEmailAsync(request.EmailAddress);
+
+            if(user == null) {
+                throw new BadRequestException("Could not send link to email address, please try again.");
+            }
+
+            var resetPasswordResult = await _userManager.ResetPasswordAsync(user, request.PasswordResetToken, request.Password);
+
+            if (resetPasswordResult.Succeeded) {
+                return true;
+            }
+
+
+            return false;
+
+        }
+
+        public async Task<string> ForgotPassword(string emailAddress) {
+            var user = await _userManager.FindByEmailAsync(emailAddress);
+
+            if (user == null) {
+                throw new BadRequestException("Could not send link to email address, please try again.");
+            }
+
+            var passwordResetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var callback_url = "https://localhost:7050" + _urlHelper.Action("ResetPassword", "Auth",
+                new {
+                    emailAddress = user.Email,
+                    passwordResetToken = passwordResetToken
+                });
+
+            Console.WriteLine("callback: " + callback_url);
+
+            return callback_url;
+
+        }
     }
 }
