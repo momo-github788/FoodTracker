@@ -5,7 +5,7 @@ using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repository.Impl {
-    public class FoodRecordRepositoryImpl : RepositoryImpl<FoodRecord>, FoodRecordRepository {
+    public class FoodRecordRepositoryImpl : RepositoryImpl<FoodRecord, string>, FoodRecordRepository {
         public FoodRecordRepositoryImpl(ApplicationDbContext context) :base(context){
 
         }

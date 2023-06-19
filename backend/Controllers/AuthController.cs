@@ -26,6 +26,7 @@ namespace backend.Controllers {
     [ApiController]
     public class AuthController : ControllerBase {
 
+        private readonly ConfirmationTokenService _confirmationTokenService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly EmailService _emailService;
         private readonly IHttpContextAccessor _context;
@@ -34,7 +35,7 @@ namespace backend.Controllers {
         private readonly JwtService _jwtService;
         private readonly AuthService _AuthService;
 
-        public AuthController(IUnitOfWork unitOfWork, EmailService emailService, AuthService AuthService, IHttpContextAccessor context, UserManager<User> userManager, JwtService jwtService, SignInManager<User> signInManager) {
+        public AuthController(ConfirmationTokenService confirmationTokenService, IUnitOfWork unitOfWork, EmailService emailService, AuthService AuthService, IHttpContextAccessor context, UserManager<User> userManager, JwtService jwtService, SignInManager<User> signInManager) {
             _AuthService = AuthService;
             _signInManager = signInManager;
             _userManager = userManager;
@@ -42,6 +43,7 @@ namespace backend.Controllers {
             _unitOfWork = unitOfWork;
             _context = context;
             _emailService = emailService;
+            _confirmationTokenService = confirmationTokenService;
         }
 
         [AllowAnonymous]
@@ -70,36 +72,6 @@ namespace backend.Controllers {
 
             if (user != null) {
 
-                var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                var emailBody = $"Please confirm your email address <a href=\"#URL#\"> Click here</a>";
-
-                await _unitOfWork.ConfirmationTokens.Add(new ConfirmationToken {
-                    EmailConfirmationToken = confirmationToken,
-                    UserId = user.Id
-                });
-                var result = _unitOfWork.Save();
-
-                if(result < 1) {
-                    Console.WriteLine("Error saving coonfirm token");
-                    return null;
-                }
-
-
-                var callback_url = Request.Scheme + "://" + Request.Host + Url.Action("ConfirmEmail", "Auth",
-                new { 
-                    userId = user.Id,
-                    confirmationToken = confirmationToken
-                });
-
-                var body = emailBody.Replace("#URL#",
-                    System.Text.Encodings.Web.HtmlEncoder.Default.Encode(callback_url));
-
-                Console.WriteLine("callback: " + callback_url);
-
-                _emailService.sendEmail("axel.nienow@ethereal.email", "Email Verification", body, user.Email);
-
-         
-
                 return Ok(new ApiResponse<UserLoginResponse>() {
                     Succeeded = true,
                     Message = "Account created successfully."
@@ -115,38 +87,28 @@ namespace backend.Controllers {
 
 
 
-            [AllowAnonymous]
+        [AllowAnonymous]
         [Route("ConfirmEmail")]
         [HttpGet]
         public async Task<IActionResult> ConfirmEmail(string userId, string confirmationToken) {
-            if (userId == null || confirmationToken == null) {
-                return BadRequest("Invalid Email confirmation Token");
+
+            var status = await _confirmationTokenService.ConfirmToken(userId, confirmationToken);
+
+            if (status) {
+                return Ok("Email address confirmed.");
             }
-
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user == null) {
-                return BadRequest("Invalid Email parameters");
-            }
-
-            if (user.EmailConfirmed) {
-                return BadRequest("Your email address has already been verified");
-            }
-
-            var result = await _userManager.ConfirmEmailAsync(user, confirmationToken);
-
-            var status = result.Succeeded
-                ? "Email has been verified successfully"
-                : "Email was not verified, please check your email for a new confirmation link";
-
-            return Ok(status);
+            return BadRequest("Error confirming email, please try again later");
         }
 
         [AllowAnonymous]
         [Route("ResendConfirmationEmail")]
         [HttpGet]
-        public async Task<IActionResult> ResendConfirmationEmail(string userId, string oldConfirmationToken) {
-            return Ok();
+        public async Task<IActionResult> ResendConfirmationEmail([FromQuery] string oldConfirmationToken) {
+            Console.WriteLine("Ddddddddddddddddddddddddddddd");
+
+            var response = await _confirmationTokenService
+                .GenerateNewConfirmationToken(oldConfirmationToken);
+            return Ok(response);
         }
 
         [AllowAnonymous]
@@ -179,20 +141,22 @@ namespace backend.Controllers {
         }
 
 
-        [Authorize]
-        [HttpGet("Welcome")]
-        public async Task<IActionResult> Welcome() {
-            var user = await _userManager.FindByNameAsync(AuthUtils.getPrincipal(_context));
+        [AllowAnonymous]
+        [HttpGet("test")]
+        public async Task<IActionResult> test() {
+            //var user = await _userManager.FindByNameAsync(AuthUtils.getPrincipal(_context));
 
-            Console.WriteLine(AuthUtils.getPrincipal(_context));
+            //Console.WriteLine(AuthUtils.getPrincipal(_context));
 
-            if (user == null) {
-                return BadRequest("Not found");
-            }
+            //if (user == null) {
+            //    return BadRequest("Not found");
+            //}
 
 
+            var response = await _confirmationTokenService.GetConfirmationToken("3");
+     
             //_emailService.sendEmail("axel.nienow@ethereal.email", "Test", "This is test", user.Email);
-            return Ok(user);
+            return Ok(response);
         }
 
             [AllowAnonymous]

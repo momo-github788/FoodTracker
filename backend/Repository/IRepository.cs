@@ -2,8 +2,8 @@
 using backend.Filter;
 
 namespace backend.Repository {
-    public interface IRepository<T> where T : class {
-        Task<T> GetById(string id);
+    public interface IRepository<T,ID> where T : class {
+        Task<T> Get(ID id);
         Task<IEnumerable<T>> GetAll();
         Task Add(T entity);
         Task AddAll(IEnumerable<T> entities);

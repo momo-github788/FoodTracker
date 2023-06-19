@@ -40,6 +40,12 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime>("createdAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("expiredAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("ConfirmationTokenId");
 
                     b.HasIndex("UserId");

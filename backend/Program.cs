@@ -16,6 +16,9 @@ using Microsoft.Extensions.Options;
 using System.Reflection;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,10 +43,17 @@ builder.Services.AddScoped<RoleService, RoleServiceImpl>();
 builder.Services.AddScoped<JwtService, JwtServiceImpl>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWorkImpl>();
 builder.Services.AddScoped<EmailService, EmailServiceImpl>();
+builder.Services.AddScoped<ConfirmationTokenService, ConfirmationTokenServiceImpl>();
 builder.Services.AddScoped<ConfirmationTokenRepository, ConfirmationTokenRepositoryImpl>();
 builder.Services.AddScoped<FoodRecordRepository, FoodRecordRepositoryImpl>();
 builder.Services.AddScoped<FoodRecordsService, FoodRecordsServiceImpl>();
 builder.Services.AddSingleton(tokenValidationParameters);
+builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+builder.Services.AddScoped<IUrlHelper>(x => {
+    var actionContext = x.GetRequiredService<IActionContextAccessor>().ActionContext;
+    var factory = x.GetRequiredService<IUrlHelperFactory>();
+    return factory.GetUrlHelper(actionContext);
+});
 //builder.Services.AddTransient<IPasswordValidator<User>, PasswordPolicy>();
 
 // Add services to the container.

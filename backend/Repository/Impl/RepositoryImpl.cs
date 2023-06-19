@@ -4,7 +4,7 @@ using backend.Filter;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repository.Impl {
-    public class RepositoryImpl<T> : IRepository<T> where T : class {
+    public class RepositoryImpl<T, ID> : IRepository<T, ID> where T : class {
 
         // Will be used in sub classes so make it protected
         protected readonly DbContext _context;
@@ -13,10 +13,11 @@ namespace backend.Repository.Impl {
             _context = context;
         }
 
-        public async Task<T> GetById(string id) {
+        public async Task<T> Get(ID id) {
 
             return await _context.Set<T>().FindAsync(id);
         }
+
 
         public async Task<IEnumerable<T>> GetAll() {
             return await _context.Set<T>().ToListAsync();

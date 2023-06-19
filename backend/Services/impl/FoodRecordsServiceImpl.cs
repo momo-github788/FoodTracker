@@ -46,7 +46,7 @@ namespace backend.Services.impl
         public async Task<FoodRecordResponse> GetById(string userName, string id) {
             var user = await _userManager.FindByNameAsync(userName);
 
-            var foodRecord = await _unitOfWork.FoodRecords.GetById(id);
+            var foodRecord = await _unitOfWork.FoodRecords.Get(id);
 
             if(foodRecord == null) {
                 throw new Exception("Food doesn't exist");
@@ -112,7 +112,7 @@ namespace backend.Services.impl
         }
 
         public async Task<ICollection<FoodRecordResponse>> Delete(string userName, string id, PaginationAndFilterParams filter) {
-            var foodRecord = await _unitOfWork.FoodRecords.GetById(id);
+            var foodRecord = await _unitOfWork.FoodRecords.Get(id);
 
             if(foodRecord == null) {
                 return null;
@@ -130,7 +130,7 @@ namespace backend.Services.impl
 
 
         public async Task<FoodRecordResponse> Update(UpdateFoodRecordRequest request) {
-            var foodRecord = await _unitOfWork.FoodRecords.GetById(request.Id);
+            var foodRecord = await _unitOfWork.FoodRecords.Get(request.Id);
 
             if(foodRecord == null) {
                 throw new BadRequestException("Food Record not found");
