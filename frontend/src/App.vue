@@ -6,10 +6,10 @@
 </template>
 
 <script>
-import LoginFormVue from './components/LoginForm.vue';
+import LoginFormVue from './components/SignUpForm.vue';
 import NavBar from './components/NavBar.vue';
 import HomeView from './views/HomeView.vue';
-import LoginForm from './components/LoginForm.vue'
+import LoginForm from './components/SignUpForm.vue'
 
 export default {
   components: {

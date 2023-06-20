@@ -59,12 +59,12 @@ builder.Services.AddScoped<IUrlHelper>(x => {
 // Add services to the container.
 
 
-builder.Services.AddControllers();
+//builder.Services.AddControllers();
 //builder.Services.AddControllers().AddNewtonsoftJson();
 // Newtonsoft library to serialize/deserialize json requests/responses
-//builder.Services.AddControllers().AddNewtonsoftJson(options =>
-//    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-//);
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
@@ -107,9 +107,9 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(opt => {
 // Adding authentication
 builder.Services.AddAuthentication(options => {
     //options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    //options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    //options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })   
 .AddJwtBearer(options => {
     options.SaveToken = true;

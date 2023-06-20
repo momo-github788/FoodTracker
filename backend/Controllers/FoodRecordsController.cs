@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace backend.Controllers
 {
 
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class FoodRecordsController : ControllerBase {
@@ -27,7 +28,6 @@ namespace backend.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> Create(CreateFoodRecordRequest request) {
             if (!ModelState.IsValid) {
                 return BadRequest(new ApiResponse<FoodRecordResponse> {
@@ -49,8 +49,8 @@ namespace backend.Controllers
             });
         }
 
+
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> GetAll([FromQuery] PaginationAndFilterParams filter) {
 
             PaginationAndFilterParams validFilter = new PaginationAndFilterParams(
@@ -66,7 +66,6 @@ namespace backend.Controllers
         }
         
         [HttpGet("{id}")]
-        [Authorize]
         public async Task<ActionResult> GetById(string id) {
             return Ok(
                 new ApiResponse<FoodRecordResponse>() {
@@ -77,7 +76,6 @@ namespace backend.Controllers
         }
 
         [HttpPut]
-        [Authorize]
         public async Task<IActionResult> Update(UpdateFoodRecordRequest request) {
 
             var result = await _foodRecordsService.Update(request);
@@ -90,7 +88,6 @@ namespace backend.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize]
         public async Task<IActionResult> Delete(string id, [FromQuery] PaginationAndFilterParams filter) {
 
             var result = await _foodRecordsService.Delete("eee", id, filter);

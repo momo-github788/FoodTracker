@@ -1,67 +1,62 @@
 <template>
   <form @submit.prevent="handleSubmit">
- 
+
     <div class="mb-3">
       <label class="form-label">Username</label>
-      <input type="text" v-model="request.userName" class="form-control" placeholder="Enter username">
+      <input type="text" v-model="request.userName" class="form-control" placeholder="Enter username"/>
     </div>
 
-     <div class="mb-3">
-      <label class="form-label">Email Address</label>
-      <input type="email" v-model="request.emailAddress" class="form-control" placeholder="Enter email address">
-    </div>
-
-     <div class="mb-3">
+    <div class="mb-3">
       <label class="form-label">Password</label>
-      <input type="password" v-model="request.password" class="form-control" placeholder="Enter password">
+      <input type="password" v-model="request.password" class="form-control" placeholder="Enter password"/>
     </div>
 
-     <div class="mb-3">
-      <label class="form-label">Confirm Password</label>
-      <input type="password" v-model="request.confirmPassword" class="form-control" placeholder="Enter password">
-    </div>
 
-    {{request.userName}}
-{{request.emailAddress}}
     <button type="submit" class="btn btn-primary">Submit</button>
- 
-</form>
+  </form>
 </template>
 
 <script>
-import { reactive, ref } from 'vue';
-import useAuth from '@/composables/FoodRecord/auth.js';
+import { computed, onMounted, reactive, ref } from "vue";
+import useAuth from "@/composables/FoodRecord/auth.js";
 
 
 export default {
-    components: {
-        
-    },
-    setup() {
+  components: {},
+  setup() {
+    const { login, errors} = useAuth();
 
-     
-        const {register} = useAuth();
 
-        const request = reactive({
-            userName: "",
-            emailAddress: "",
-            password: "",
-            confirmPassword: ""
-        })
+    const request = ref({
+      userName: "admin1234",
+      password: "P@ssw0rd",
+    })
 
-        const handleSubmit = () => {
-            register(request);
-           
-        }
+ 
+    // const validateForm = () => {
+    
+    //  return true;
+    // };
 
-        return {
-            request, handleSubmit
-        }
-    }
 
-}
+    const handleSubmit = async () => {
+        console.log(request.value)
+        await login(request.value);
+        console.log(errors.value)
+        console.log(hasErrors)
+    };
+
+    const hasErrors = computed(() => Object.keys(errors.value).length > 0)
+
+    return {
+      errors,
+      request,
+      handleSubmit,
+      hasErrors
+      
+    };
+  },
+};
 </script>
 
-<style>
-
-</style>
+<style></style>

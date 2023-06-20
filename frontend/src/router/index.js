@@ -2,11 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import UpdateFood from '../components/UpdateFood.vue'
 import AddFood from '../components/AddFood.vue'
+import SignUpForm from '../components/SignUpForm.vue'
 import LoginForm from '../components/LoginForm.vue'
-
 const routes = [
   {
-    path: '/z',
+    path: '/',
     name: 'home',
     component: HomeView
   },
@@ -22,7 +22,12 @@ const routes = [
     component: AddFood
   },
   {
-    path: '/',
+    path: '/sign-up',
+    name: 'signup',
+    component: SignUpForm
+  },
+  {
+    path: '/log-in',
     name: 'login',
     component: LoginForm
   }

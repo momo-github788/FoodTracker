@@ -89,7 +89,7 @@ namespace backend.Services.impl {
 
         
             var newToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            Console.WriteLine("NEW TOKEN CREATED: " + newToken);
+      
             //var confirmationToken = await _confirmationTokenService.GenerateConfirmationToken(user.Id);
 
             //var emailBody = $"Please confirm your email address <a href=\"#URL#\"> Click here</a>";
@@ -122,7 +122,7 @@ namespace backend.Services.impl {
 
 
             await _unitOfWork.ConfirmationTokens.Add(emailConfirmationToken);
-            Console.WriteLine("emailConfirmationToken: " + emailConfirmationToken);
+            Console.WriteLine("new token: " + emailConfirmationToken);
 
             var result = _unitOfWork.Save();
 
@@ -131,8 +131,6 @@ namespace backend.Services.impl {
             }
 
             //await ConfirmToken(oldToken.UserId, oldToken.Token);
-
-            Console.WriteLine("New token found: " + emailConfirmationToken);
 
             return emailConfirmationToken;
         }
@@ -174,14 +172,35 @@ namespace backend.Services.impl {
                 throw new BadRequestException("Your email address has already been verified");
             }
 
+
             var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
             //var decodedToken = HttpUtility.UrlDecode(token);
             Console.WriteLine("ConfirmToken decoded: " + decodedToken);
 
+            //var isTokenValid = await _userManager.VerifyUserTokenAsync(user,
+            //    _userManager.Options.Tokens.EmailConfirmationTokenProvider,
+            //    "EmailConfirmation", decodedToken);
+            
             var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
 
-            return result.Succeeded;
+            if (result == null) {
+                return false;
+            }
+
+            return true;
+
+
+            //Console.WriteLine("isTokenValid: " + isTokenValid);
+            //if (isTokenValid) {
+            //    user.EmailConfirmed = true;
+            //}
+            //else {
+            //    throw new InvalidTokenException("Token is invalid");
+            //}
+
+            //return isTokenValid;
         }
+
 
     }
 }

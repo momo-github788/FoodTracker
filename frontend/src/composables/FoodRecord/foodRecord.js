@@ -13,9 +13,9 @@ export default function useFoodRecords() {
     const errors = ref([]) //array of strings
 
 
-    const createFoodRecord = async (foodRecord) => {
+    const createFoodRecord = (foodRecord) => {
         errors.value = []
-        await FoodRecordService.create(foodRecord)
+        FoodRecordService.create(foodRecord)
             .then(res => {
     
                 if(res.status !== 200) {
@@ -31,10 +31,10 @@ export default function useFoodRecords() {
     }
 
     
-    const searchFoodRecords = async (params) => {
+    const searchFoodRecords = (params) => {
         errors.value = []
 
-        await FoodRecordService.searchFoodRecords(params)
+        FoodRecordService.searchFoodRecords(params)
             .then(res => {
                 if(!res.status === 200) {
                     throw Error("No data available")
