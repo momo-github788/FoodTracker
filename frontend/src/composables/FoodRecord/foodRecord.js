@@ -1,4 +1,4 @@
-import ApiService from '@/services/ApiService'
+import FoodRecordService from '@/services/FoodRecordService'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -13,9 +13,9 @@ export default function useFoodRecords() {
     const errors = ref([]) //array of strings
 
 
-    const createFoodRecord = (foodRecord) => {
+    const createFoodRecord = async (foodRecord) => {
         errors.value = []
-        ApiService.create(foodRecord)
+        await FoodRecordService.create(foodRecord)
             .then(res => {
     
                 if(res.status !== 200) {
@@ -31,10 +31,10 @@ export default function useFoodRecords() {
     }
 
     
-    const searchFoodRecords = (params) => {
+    const searchFoodRecords = async (params) => {
         errors.value = []
 
-        ApiService.searchFoodRecords(params)
+        await FoodRecordService.searchFoodRecords(params)
             .then(res => {
                 if(!res.status === 200) {
                     throw Error("No data available")
@@ -51,7 +51,7 @@ export default function useFoodRecords() {
     const getFoodRecords = (params) => {
         errors.value = []
 
-        ApiService.getAll(params)
+        FoodRecordService.getAll(params)
             .then(res => {
                 if(!res.status === 200) {
                     throw Error("No data available")
@@ -67,7 +67,7 @@ export default function useFoodRecords() {
     const getFoodRecord = (id) => {
         errors.value = []
 
-        ApiService.getById(id)
+        FoodRecordService.getById(id)
             .then(res => {
                 if(!res.status === 200) {
                     throw Error("No data available")
@@ -82,7 +82,7 @@ export default function useFoodRecords() {
 
     const updateFoodRecord = (id) => {
         errors.value = []
-        ApiService.update(foodRecord.value, id)
+        FoodRecordService.update(foodRecord.value, id)
             .then(res => {
                 console.log(res)
                 if(!res.status === 200) {
@@ -99,7 +99,7 @@ export default function useFoodRecords() {
 
     const deleteFoodRecord = (id) => {
         errors.value = []
-        ApiService.delete(id)
+        FoodRecordService.delete(id)
             .then(res => {
                 console.log(res)
                 foodRecords.value = res.data.data

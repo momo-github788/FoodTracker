@@ -23,7 +23,7 @@
 
 <script>
 import useFoodRecords from '@/composables/FoodRecord/foodRecord.js';
-import ApiService from '@/services/ApiService';
+import FoodRecordService from '@/services/FoodRecordService';
 import router from '@/router';
 import { onMounted } from 'vue';
 

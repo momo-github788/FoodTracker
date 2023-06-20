@@ -5,8 +5,7 @@ using backend.Exceptions;
 using backend.Models;
 using backend.Repository;
 using Microsoft.AspNetCore.Identity;
-using Newtonsoft.Json.Linq;
-using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace backend.Services.impl {
     public class ConfirmationTokenServiceImpl : ConfirmationTokenService {
@@ -33,12 +32,11 @@ namespace backend.Services.impl {
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-            Console.WriteLine(token);
-            var encodedToken = HttpUtility.UrlEncode(token);
-            Console.WriteLine(encodedToken);
+            //var encodedToken = HttpUtility.UrlEncode(token);
+            //Console.WriteLine(encodedToken);
 
             var emailConfirmationToken = new ConfirmationToken {
-                Token = encodedToken,
+                Token = token,
                 UserId = user.Id,
                 isUsed = true
             };
@@ -141,13 +139,15 @@ namespace backend.Services.impl {
 
         public async Task<ConfirmationToken> GetConfirmationToken(string token) {
 
+
+            Console.WriteLine("token encoded: " + token);
             if (token == null) {
                 throw new InvalidTokenException("Invalid token parameters");
             }
 
-            var decodedToken = WebUtility.UrlDecode(token);
-    
-            var confirmationToken = await _unitOfWork.ConfirmationTokens.GetByConfirmationToken(decodedToken);
+            var addIllegalCharsBackToToken = token.Replace(" ", "+");
+
+            var confirmationToken = await _unitOfWork.ConfirmationTokens.GetByConfirmationToken(addIllegalCharsBackToToken);
             if(confirmationToken == null) {
                 Console.WriteLine("TOKEN NOT FOUND");
                 throw new InvalidTokenException("Token not found");
@@ -173,8 +173,9 @@ namespace backend.Services.impl {
             if (user.EmailConfirmed) {
                 throw new BadRequestException("Your email address has already been verified");
             }
-            
-            var decodedToken = HttpUtility.UrlDecode(token);
+
+            var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+            //var decodedToken = HttpUtility.UrlDecode(token);
             Console.WriteLine("ConfirmToken decoded: " + decodedToken);
 
             var result = await _userManager.ConfirmEmailAsync(user, decodedToken);

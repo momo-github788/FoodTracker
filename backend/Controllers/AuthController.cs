@@ -19,6 +19,8 @@ using backend.Utils;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Linq;
 
 namespace backend.Controllers {
 
@@ -92,7 +94,7 @@ namespace backend.Controllers {
         [AllowAnonymous]
         [Route("ForgotPassword")]
         [HttpPost]
-        public async Task<IActionResult> ForgotPassword([Required] string emailAddress) {
+        public async Task<IActionResult> ForgotPassword([FromBody] string emailAddress) {
             var response = await _authService.ForgotPassword(emailAddress);
 
             return Ok(response);
@@ -132,9 +134,9 @@ namespace backend.Controllers {
                 EmailAddress = emailAddress
             };
 
-            return Ok(new {
+            return Ok(
                 request
-            });
+            );
 
         }
 
@@ -204,7 +206,7 @@ namespace backend.Controllers {
             //    return BadRequest("Not found");
             //}
 
-
+ 
             var response = await _confirmationTokenService.GetConfirmationToken(confirmationToken);
      
             //_emailService.sendEmail("axel.nienow@ethereal.email", "Test", "This is test", user.Email);

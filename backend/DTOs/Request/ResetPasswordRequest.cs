@@ -9,6 +9,6 @@ namespace backend.DTOs.Request {
         [Required, Compare(nameof(Password), ErrorMessage = "Passwords do not match")]
         public string ConfirmPassword { get; set; } = string.Empty;
 
-        public string EmailAddress { get; set; }
+        public string EmailAddress { get; set; } = string.Empty;
     }
 }

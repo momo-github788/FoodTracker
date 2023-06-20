@@ -58,7 +58,9 @@ builder.Services.AddScoped<IUrlHelper>(x => {
 
 // Add services to the container.
 
+
 builder.Services.AddControllers();
+//builder.Services.AddControllers().AddNewtonsoftJson();
 // Newtonsoft library to serialize/deserialize json requests/responses
 //builder.Services.AddControllers().AddNewtonsoftJson(options =>
 //    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
