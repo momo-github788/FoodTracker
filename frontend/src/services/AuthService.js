@@ -1,8 +1,9 @@
+import { authHeader } from '../utils/AuthUtils';
 import axios from 'axios'
 
 const client = axios.create({
     baseURL: 'https://localhost:7050/api/auth',
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json'}
 })
 
 const BASE_URL = client.defaults.baseURL;
@@ -13,5 +14,8 @@ export default {
     },
     async login(request) {
         return await axios.post(BASE_URL + "/login", request);
+    },
+    logout() {
+        localStorage.removeItem('user');
     }
 }

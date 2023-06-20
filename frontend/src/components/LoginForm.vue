@@ -24,7 +24,7 @@ import useAuth from "@/composables/FoodRecord/auth.js";
 export default {
   components: {},
   setup() {
-    const { login, errors} = useAuth();
+    const { login, errors, getCurrentUserAccessToken} = useAuth();
 
 
     const request = ref({
@@ -33,6 +33,8 @@ export default {
     })
 
  
+
+
     // const validateForm = () => {
     
     //  return true;
@@ -40,10 +42,10 @@ export default {
 
 
     const handleSubmit = async () => {
-        console.log(request.value)
+    
         await login(request.value);
         console.log(errors.value)
-        console.log(hasErrors)
+       
     };
 
     const hasErrors = computed(() => Object.keys(errors.value).length > 0)

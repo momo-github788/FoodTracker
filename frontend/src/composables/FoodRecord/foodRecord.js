@@ -61,7 +61,7 @@ export default function useFoodRecords() {
 
             }).catch(err => {
                 errors.value.push(err.message)
-                console.log("Err: ", err.message)
+                console.log("Err: ", err.response.data)
             })
     }
     const getFoodRecord = (id) => {

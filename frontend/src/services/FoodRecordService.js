@@ -1,3 +1,4 @@
+import { authHeader } from '../utils/AuthUtils';
 import axios from 'axios'
 
 const client = axios.create({
@@ -13,15 +14,15 @@ export default {
     },
     async getAll(params) {
         console.log("params: ", params)
-        return await axios.get(BASE_URL, {params});
+        return await axios.get(BASE_URL, {params, headers: authHeader()});
     },
     async getById(id) {
-        return await axios.get(BASE_URL + `/${id}`)
+        return await axios.get(BASE_URL + `/${id}`, {headers: authHeader()})
     },
     async update(foodRecord, id) {
-        return await axios.put(BASE_URL + `/${id}`, foodRecord)
+        return await axios.put(BASE_URL + `/${id}`, foodRecord, {headers: authHeader()})
     },
     async delete(id) {
-        return await axios.delete(BASE_URL + `/${id}`)
+        return await axios.delete(BASE_URL + `/${id}`, {headers: authHeader()})
     } 
 }

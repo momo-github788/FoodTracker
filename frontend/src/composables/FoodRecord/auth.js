@@ -14,9 +14,16 @@ export default function useAuth() {
         errors.value = {}
         await AuthService.login(request)
             .then(res => {
-                console.log("res: ", res)
+                const response = res.data;
+                console.log("res: ", response)
+
+                if(response.success === true) {
+                    localStorage.setItem('user', JSON.stringify(response));
+                }
+            
             })
             .catch(err => {
+                console.log("err: ", err.response.data)
                 const newErrors = err.response.data.errors;
                 errors.value = newErrors
             })
@@ -34,6 +41,7 @@ export default function useAuth() {
                 errors.value = newErrors
             })
     }
+
     return {
         register,login,errors
     }

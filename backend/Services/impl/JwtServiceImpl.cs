@@ -63,6 +63,8 @@ namespace backend.Services.impl {
             await _context.SaveChangesAsync();
 
             return new UserLoginResponse {
+                UserId = user.Id,
+                UserName = user.UserName,
                 AccessToken = new JwtSecurityTokenHandler().WriteToken(accessToken),
                 RefreshToken = refreshToken.Token,
                 Success = true
